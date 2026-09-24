@@ -376,14 +376,81 @@ function escapeHtml(v){ return escapeAttr(v); }
 function renderAll(){
   renderHome(); renderCategories(); renderShops(); renderCart(); updateCartBadge();
 }
-function navigate(page){
+function routeState(){
+  return {lkrBazaar:true,type:"page",page:state.page,selectedCategory:state.selectedCategory,selectedShop:state.selectedShop,shopCategory:state.shopCategory,shopProductCategory:state.shopProductCategory};
+}
+function setPageUI(page){
   state.page=page;
   document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
-  document.getElementById(page+"Page").classList.add("active");
+  const el=document.getElementById(page+"Page");
+  if(el) el.classList.add("active");
   document.querySelectorAll(".nav-btn").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
-  window.scrollTo({top:0,behavior:"smooth"});
   if(page==="cart") renderCart();
+  if(page==="categories") renderCategories();
+  if(page==="shops") renderShops();
+  if(page==="home") renderHome();
+  window.scrollTo({top:0,behavior:"smooth"});
 }
+function navigate(page, options={}){
+  closeAccount();
+  if(document.getElementById("profileOverlay").classList.contains("show")) closeProfile(null,{fromPop:true});
+  const next={...routeState(),type:"page",page};
+  if(!options.fromPop) history.pushState(next,"",location.href);
+  setPageUI(page);
+}
+function openShopDetail(id, options={}){
+  state.selectedShop=id;
+  state.shopProductCategory="all";
+  state.page="shops";
+  const next={...routeState(),type:"shopDetail",page:"shops",selectedShop:id,shopProductCategory:"all"};
+  if(!options.fromPop) history.pushState(next,"",location.href);
+  renderShops();
+  document.querySelectorAll(".nav-btn").forEach(x=>x.classList.toggle("active",x.dataset.page==="shops"));
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function restoreRoute(r){
+  if(!r || !r.lkrBazaar) return false;
+  closeAccount();
+  closeProfile(null,{fromPop:true});
+  if(document.getElementById("detail").classList.contains("show")){
+    document.getElementById("detail").classList.remove("show");
+    document.body.style.overflow="";
+  }
+  state.page=r.page||"home";
+  state.selectedCategory=r.selectedCategory||"all";
+  state.selectedShop=r.selectedShop||null;
+  state.shopCategory=r.shopCategory||"all";
+  state.shopProductCategory=r.shopProductCategory||"all";
+  setPageUI(state.page);
+  if(r.type==="shopDetail") renderShops();
+  if(r.type==="profile"){
+    openProfile({fromPop:true});
+  }
+  if(r.type==="productDetail"){
+    currentProductId=r.productId;
+    const p=product(currentProductId);
+    if(!p) return true;
+    const existing=DB.cart.find(x=>x.productId===currentProductId);
+    detailQty=existing?existing.qty:0;
+    window.detailImageIndex=0;
+    renderDetail();
+    document.getElementById("detail").classList.add("show");
+    document.body.style.overflow="hidden";
+  }
+  return true;
+}
+window.addEventListener("popstate",function(e){
+  const r=e.state;
+  if(r && r.lkrBazaar){ restoreRoute(r); return; }
+  // A non-app history entry means the app has reached its Home boundary.
+  if(document.getElementById("detail").classList.contains("show")) closeDetail();
+  if(document.getElementById("profileOverlay").classList.contains("show")) closeProfile();
+});
+function initHistory(){
+  const initial={...routeState(),type:"page",page:"home"};
+  history.replaceState(initial,"",location.href);
+}
+
 function handleSearch(value){
   state.search=value.trim().toLowerCase();
   if(state.search && state.page!=="home") navigate("home");
@@ -462,7 +529,7 @@ function renderShops(){
     const activeCat=state.shopProductCategory||"all";
     const items=activeCat==="all"?shopProducts:shopProducts.filter(p=>p.category===activeCat);
     document.getElementById("shopsPage").innerHTML=`
-      <div class="section-head"><button onclick="state.selectedShop=null;state.shopProductCategory='all';renderShops()" style="color:var(--blue);background:none;font-weight:800">‹ All Shops</button><span></span></div>
+      <div class="section-head"><button onclick="history.back()" style="color:var(--blue);background:none;font-weight:800">‹ All Shops</button><span></span></div>
       <div class="shop-detail-box"><div class="shop-detail-top"><div class="shop-logo">${selected.icon}</div><div><h2>${escapeHtml(selected.name)}</h2><p>📍 ${escapeHtml(selected.location)}<br>🏷️ ${escapeHtml(selected.category)}</p></div></div><p>${escapeHtml(selected.description||"Local shop on LKR Bazaar.")}</p><div class="filterbar" style="margin-top:10px;margin-bottom:0">${productCats.map(c=>`<button class="chip ${activeCat===c?"active":""}" onclick="state.shopProductCategory='${c}';renderShops()">${c==="all"?"All Products":(DB.categories.find(x=>x.id===c)?.name||c)}</button>`).join("")}</div></div>
       <div class="section-head"><h3>${activeCat==="all"?"All Products":(DB.categories.find(x=>x.id===activeCat)?.name||activeCat)}</h3><span style="font-size:11px;color:var(--muted)">${items.length} products</span></div>
       ${items.length?`<div class="product-grid">${items.map(productCard).join("")}</div>`:`<div class="empty"><div class="big">📦</div>No products in this shop category.</div>`}`;
@@ -472,7 +539,7 @@ function renderShops(){
   document.getElementById("shopsPage").innerHTML=`
     <div class="section-head"><h3>Shops</h3><span style="font-size:11px;color:var(--muted)">${shops.length} shops</span></div>
     <div class="filterbar">${categories.map(c=>`<button class="chip ${(state.shopCategory||"all")==c?"active":""}" onclick="state.shopCategory='${c}';renderShops()">${c==="all"?"All":escapeHtml(c)}</button>`).join("")}</div>
-    <div class="list">${shops.map(s=>{const count=DB.products.filter(p=>p.shopId===s.id).length;return `<button class="shop-card" onclick="state.selectedShop='${s.id}';state.shopProductCategory='all';renderShops()"><div class="shop-logo">${s.icon}</div><div style="text-align:left;min-width:0"><h4>${escapeHtml(s.name)}</h4><p>${escapeHtml(s.location)}</p><p>${escapeHtml(s.description||"")}</p><div style="margin-top:5px"><span class="chip" style="padding:4px 7px;font-size:9px">${escapeHtml(s.category)}</span> <span class="chip" style="padding:4px 7px;font-size:9px">${count} products</span></div></div><span class="arrow">›</span></button>`}).join("")}</div>`;
+    <div class="list">${shops.map(s=>{const count=DB.products.filter(p=>p.shopId===s.id).length;return `<button class="shop-card" onclick="openShopDetail('${s.id}')"><div class="shop-logo">${s.icon}</div><div style="text-align:left;min-width:0"><h4>${escapeHtml(s.name)}</h4><p>${escapeHtml(s.location)}</p><p>${escapeHtml(s.description||"")}</p><div style="margin-top:5px"><span class="chip" style="padding:4px 7px;font-size:9px">${escapeHtml(s.category)}</span> <span class="chip" style="padding:4px 7px;font-size:9px">${count} products</span></div></div><span class="arrow">›</span></button>`}).join("")}</div>`;
 }
 function cartLines(){
   return DB.cart.map(c=>({line:c,p:product(c.productId)})).filter(x=>x.p);
@@ -519,12 +586,13 @@ function renderCart(){
         <div class="sum-row"><span>Subtotal</span><strong>${money(cartTotal())}</strong></div>
         <div class="sum-row"><span>Delivery</span><strong>Free</strong></div>
         <div class="sum-row total"><span>Total Amount</span><strong>${money(cartTotal())}</strong></div>
+        ${cartTotal()<100?`<div style="margin:10px 0;padding:10px;border-radius:10px;background:#fff4e5;color:#b85b00;font-size:11px;font-weight:800">Order करने के लिए कम से कम ₹100 की खरीदारी करें।</div>`:""}
         <button class="checkout" onclick="checkout()">Proceed to Checkout →</button>
       </div>
     `:`<div class="empty"><div class="big">🛒</div><h3>Your cart is empty</h3><p>Add products from local shops to see them here.</p><button class="primary" onclick="navigate('home')">Continue Shopping</button></div>`}
   `;
 }
-function openDetail(id){
+function openDetail(id, options={}){
   const p=product(id); if(!p)return;
   currentProductId=id;
   const existing=DB.cart.find(x=>x.productId===id);
@@ -533,6 +601,9 @@ function openDetail(id){
   renderDetail();
   document.getElementById("detail").classList.add("show");
   document.body.style.overflow="hidden";
+  if(!options.fromPop){
+    history.pushState({...routeState(),type:"productDetail",page:state.page,productId:id},"",location.href);
+  }
 }
 function renderDetail(){
   const p=product(currentProductId); if(!p)return;
@@ -554,14 +625,18 @@ function renderDetail(){
   document.querySelector("#detail .detail-top .icon-btn").className="detail-wish "+(wished?"on":"");
   document.querySelector("#detail .detail-top .icon-btn").textContent=wished?"♥":"♡";
 }
-function closeDetail(){document.getElementById("detail").classList.remove("show");document.body.style.overflow="";}
+function closeDetail(options={}){
+  document.getElementById("detail").classList.remove("show");
+  document.body.style.overflow="";
+  if(!options.fromPop && history.state && history.state.lkrBazaar && history.state.type==="productDetail") history.back();
+}
 function detailChange(d){
   const p=product(currentProductId); if(!p)return;
   detailQty=Math.max(0,Math.min(p.stock,detailQty+d));
   renderDetail();
 }
 function addDetailToCart(){if(detailQty<=0){toast("Select quantity first");return;}addToCart(currentProductId,detailQty);closeDetail();}
-function buyNow(){const p=product(currentProductId);if(!p||p.price<100||detailQty<=0){toast("Buy Now is available for products ₹100 or above");return;}addToCart(currentProductId,detailQty);closeDetail();navigate("cart");toast("Ready for checkout");}
+function buyNow(){const p=product(currentProductId);if(!p||p.price<100||detailQty<=0){toast("Buy Now is available for products ₹100 or above");return;}addToCart(currentProductId,detailQty);closeDetail({fromPop:true});navigate("cart");toast("Ready for checkout");}
 
 function toggleWish(id){
   if(DB.wishlist.includes(id)) DB.wishlist=DB.wishlist.filter(x=>x!==id);
@@ -581,8 +656,16 @@ function showNotifications(){
   modal.classList.add("show");
   const b=document.getElementById("notificationBadge");if(b)b.style.display="none";
 }
-function openProfile(){document.querySelectorAll(".nav-btn").forEach(x=>x.classList.toggle("active",x.dataset.page==="profile"));document.getElementById("profileOverlay").classList.add("show");}
-function closeProfile(e){if(!e||e.target===document.getElementById("profileOverlay"))document.getElementById("profileOverlay").classList.remove("show");}
+function openProfile(options={}){
+  document.querySelectorAll(".nav-btn").forEach(x=>x.classList.toggle("active",x.dataset.page==="profile"));
+  document.getElementById("profileOverlay").classList.add("show");
+  if(!options.fromPop) history.pushState({...routeState(),type:"profile",page:state.page},"",location.href);
+}
+function closeProfile(e,options={}){
+  if(e && e.target!==document.getElementById("profileOverlay")) return;
+  document.getElementById("profileOverlay").classList.remove("show");
+  if(!options.fromPop && history.state && history.state.lkrBazaar && history.state.type==="profile") history.back();
+}
 function showAccount(type){
   closeProfile();
   const titles={profile:"Edit Profile",orders:"My Orders",wishlist:"Wishlist / Favorites",addresses:"Delivery Addresses",notifications:"Notifications"};
@@ -633,6 +716,7 @@ function deleteAddress(id){
 }
 function checkout(){
   if(!DB.cart.length){toast("Your cart is empty");return}
+  if(cartTotal()<100){toast("Order करने के लिए कम से कम ₹100 की खरीदारी करें।");return}
   if(!DB.addresses.length){toast("Please add a delivery address");return}
   const order={
     id:"LKR"+Math.floor(100000+Math.random()*899999),
@@ -649,6 +733,7 @@ function demoLogout(){closeProfile();toast("Demo logout — connect Firebase Aut
 document.getElementById("drawerName").textContent=DB.user.fullName;
 document.getElementById("drawerMobile").textContent=DB.user.mobile;
 document.getElementById("drawerAvatar").textContent=DB.user.fullName[0]||"U";
+initHistory();
 renderAll();
 
 let toastTimer;
