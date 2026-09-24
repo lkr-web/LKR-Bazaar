@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0b63ce">
+<title>LKR Bazaar — User App</title>
+<style>
+:root{
+  --blue:#0b63ce;
+  --blue-dark:#084b9b;
+  --blue-soft:#eaf3ff;
+  --orange:#ff8a00;
+  --orange-dark:#ed7200;
+  --green:#149447;
+  --red:#e53935;
+  --text:#172033;
+  --muted:#6c7484;
+  --bg:#f5f7fb;
+  --card:#fff;
+  --border:#e6eaf0;
+  --shadow:0 5px 20px rgba(20,38,70,.08);
+  --radius:16px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  min-height:100vh;
+}
+button,input{font:inherit}
+button{cursor:pointer;border:0}
+a{text-decoration:none;color:inherit}
+.app{max-width:720px;margin:auto;min-height:100vh;background:var(--bg);position:relative}
+.topbar{
+  position:sticky;top:0;z-index:30;background:#fff;
+  padding:12px 16px 10px;border-bottom:1px solid var(--border);
+}
+.toprow{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{
+  width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--blue),#1984f7);
+  color:#fff;display:grid;place-items:center;font-weight:900;font-size:18px;
+  box-shadow:0 6px 14px rgba(11,99,206,.22)
+}
+.brand h1{font-size:20px;margin:0;font-weight:850;letter-spacing:-.4px}
+.brand small{display:block;color:var(--muted);font-size:11px;margin-top:1px}
+.icon-btn{
+  width:42px;height:42px;border-radius:13px;background:#f2f6fc;color:var(--text);
+  display:grid;place-items:center;font-size:20px;position:relative
+}
+.badge{
+  position:absolute;right:-3px;top:-3px;min-width:18px;height:18px;padding:0 4px;
+  border-radius:99px;background:var(--orange);color:#fff;font-size:10px;font-weight:800;
+  display:grid;place-items:center;border:2px solid #fff
+}
+.search{
+  margin-top:10px;background:#f2f5f9;border:1px solid #e5eaf1;border-radius:13px;
+  display:flex;align-items:center;padding:0 12px;height:45px
+}
+.search span{font-size:18px;color:#7a8494}
+.search input{width:100%;border:0;outline:0;background:transparent;padding:0 9px;color:var(--text)}
+.page{display:none;padding:14px 14px 94px}
+.page.active{display:block}
+.hero{
+  background:linear-gradient(115deg,var(--blue),#197cf0 60%,#4aa0ff);
+  border-radius:20px;color:#fff;padding:20px;min-height:170px;
+  display:flex;align-items:center;justify-content:space-between;overflow:hidden;position:relative;
+  box-shadow:0 10px 25px rgba(11,99,206,.2)
+}
+.hero:after{
+  content:"";position:absolute;width:180px;height:180px;border-radius:50%;right:-55px;bottom:-75px;
+  background:rgba(255,255,255,.13)
+}
+.hero-text{position:relative;z-index:1;max-width:65%}
+.hero h2{font-size:23px;line-height:1.15;margin:0 0 7px}
+.hero p{font-size:12px;opacity:.9;margin:0 0 15px}
+.hero button{background:var(--orange);color:#fff;border-radius:10px;padding:9px 13px;font-weight:800;font-size:12px}
+.hero-art{font-size:76px;position:relative;z-index:1;transform:rotate(-5deg)}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin:20px 2px 11px}
+.section-head h3{font-size:17px;margin:0}
+.section-head button{background:none;color:var(--blue);font-size:12px;font-weight:750}
+.hscroll{display:flex;gap:11px;overflow:auto;padding:2px 1px 6px;scrollbar-width:none}
+.hscroll::-webkit-scrollbar{display:none}
+.cat{
+  min-width:74px;background:#fff;border:1px solid var(--border);border-radius:15px;padding:9px 7px;
+  text-align:center;box-shadow:0 3px 10px rgba(20,38,70,.04)
+}
+.cat .cat-icon{width:42px;height:42px;border-radius:13px;margin:auto;background:var(--blue-soft);display:grid;place-items:center;font-size:22px}
+.cat span{display:block;font-size:10px;font-weight:700;margin-top:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.product-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.product{
+  background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 3px 12px rgba(20,38,70,.05);min-width:0
+}
+.product-img{height:145px;background:#f2f6fb;position:relative;display:grid;place-items:center;overflow:hidden}
+.product-img img{width:100%;height:100%;object-fit:cover}
+.product-img .emoji{font-size:60px}
+.wish{
+  position:absolute;right:8px;top:8px;width:31px;height:31px;border-radius:50%;background:#fff;
+  display:grid;place-items:center;font-size:17px;box-shadow:0 2px 8px rgba(0,0,0,.1)
+}
+.wish.on{color:var(--red)}
+.product-info{padding:10px}
+.product-name{font-size:13px;font-weight:750;line-height:1.3;min-height:34px}
+.shop-line{font-size:10px;color:var(--muted);margin:4px 0}
+.price-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.price{font-size:15px;font-weight:900}
+.old{text-decoration:line-through;color:#9aa2af;font-size:10px}
+.discount{color:var(--green);font-size:10px;font-weight:800}
+.add{
+  width:100%;margin-top:8px;background:var(--orange);color:#fff;border-radius:9px;padding:8px 5px;
+  font-size:11px;font-weight:850
+}
+.empty{text-align:center;padding:45px 20px;color:var(--muted)}
+.empty .big{font-size:48px;margin-bottom:8px}
+.list{display:grid;gap:10px}
+.shop-card,.order-card,.profile-card,.address-card,.cart-item,.info-card{
+  background:#fff;border:1px solid var(--border);border-radius:16px;padding:13px;box-shadow:0 3px 12px rgba(20,38,70,.04)
+}
+.shop-card{display:flex;gap:12px;align-items:center}
+.shop-logo{width:58px;height:58px;border-radius:15px;background:var(--blue-soft);display:grid;place-items:center;font-size:28px;flex:none}
+.shop-card h4{margin:0 0 4px;font-size:14px}
+.shop-card p{margin:0;color:var(--muted);font-size:11px}
+.shop-card .arrow{margin-left:auto;color:var(--blue);font-size:20px}
+.filterbar{display:flex;gap:8px;overflow:auto;margin-bottom:12px}
+.chip{white-space:nowrap;padding:8px 12px;border-radius:99px;background:#fff;border:1px solid var(--border);font-size:11px;font-weight:700}
+.chip.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.bottom{
+  position:fixed;z-index:40;bottom:0;left:50%;transform:translateX(-50%);
+  width:min(720px,100%);height:70px;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);
+  border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr);
+  padding:5px 6px max(5px,env(safe-area-inset-bottom))
+}
+.nav-btn{background:none;color:#7d8696;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;font-weight:700;position:relative}
+.nav-btn .nav-icon{font-size:20px;line-height:20px}
+.nav-btn.active{color:var(--blue)}
+.nav-cart-badge{position:absolute;top:3px;margin-left:22px;background:var(--orange);color:#fff;border-radius:99px;font-size:9px;padding:1px 4px}
+.overlay{display:none;position:fixed;inset:0;background:rgba(12,22,38,.48);z-index:60}
+.overlay.show{display:block}
+.drawer{
+  position:absolute;right:0;top:0;height:100%;width:min(92%,390px);background:var(--bg);
+  overflow:auto;padding-bottom:30px;animation:slide .22s ease-out
+}
+@keyframes slide{from{transform:translateX(100%)}to{transform:translateX(0)}}
+.drawer-head{background:#fff;padding:16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)}
+.avatar{width:54px;height:54px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-size:22px;font-weight:800}
+.drawer-head h3{margin:0;font-size:16px}.drawer-head p{margin:3px 0 0;color:var(--muted);font-size:11px}
+.close{margin-left:auto;background:#f0f3f7;width:36px;height:36px;border-radius:11px;font-size:18px}
+.menu-section{padding:12px}
+.menu-title{font-size:11px;color:var(--muted);font-weight:800;margin:5px 4px 8px;text-transform:uppercase}
+.menu-item{
+  background:#fff;border:1px solid var(--border);border-radius:13px;padding:13px;margin-bottom:8px;
+  display:flex;align-items:center;gap:11px;font-size:13px;font-weight:700
+}
+.menu-item .mi{width:30px;height:30px;border-radius:9px;background:var(--blue-soft);display:grid;place-items:center}
+.menu-item .arrow{margin-left:auto;color:#9aa2af}
+.detail-wrap{position:fixed;inset:0;z-index:55;background:var(--bg);overflow:auto;display:none}
+.detail-wrap.show{display:block}
+.detail-top{position:sticky;top:0;z-index:3;background:#fff;height:55px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid var(--border)}
+.back{width:38px;height:38px;border-radius:11px;background:#f2f5f9;font-size:20px}
+.detail-img{height:300px;background:#eef4fb;display:grid;place-items:center;position:relative}
+.detail-img img{width:100%;height:100%;object-fit:cover}
+.detail-img .emoji{font-size:110px}
+.detail-body{padding:16px}
+.detail-body h2{margin:0 0 6px;font-size:21px}
+.detail-shop{color:var(--muted);font-size:12px;margin-bottom:10px}
+.detail-price{font-size:24px;font-weight:900}
+.detail-old{text-decoration:line-through;color:#9aa2af;font-size:12px;margin-left:7px}
+.detail-desc{font-size:13px;color:#596274;line-height:1.6;margin:16px 0}
+.stock{font-size:12px;color:var(--green);font-weight:800}
+.qty{display:flex;align-items:center;gap:12px;margin:17px 0}
+.qty button{width:35px;height:35px;border-radius:10px;background:#eaf1fa;color:var(--blue);font-size:20px;font-weight:900}
+.qty strong{min-width:25px;text-align:center}
+.action-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.action-row button{padding:13px;border-radius:11px;font-weight:850}
+.buy{background:var(--blue);color:#fff}.cart-action{background:var(--orange);color:#fff}
+.cart-item{display:flex;gap:10px;align-items:center}
+.cart-thumb{width:72px;height:72px;border-radius:12px;background:#eef4fb;display:grid;place-items:center;overflow:hidden;flex:none}
+.cart-thumb img{width:100%;height:100%;object-fit:cover}.cart-thumb .emoji{font-size:35px}
+.cart-main{flex:1;min-width:0}.cart-main h4{margin:0 0 4px;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cart-main p{margin:0;color:var(--muted);font-size:10px}
+.cart-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.mini-qty{display:flex;align-items:center;gap:7px}.mini-qty button{width:27px;height:27px;border-radius:8px;background:#eef3f9;color:var(--blue);font-weight:900}
+.remove{background:none;color:var(--red);font-size:11px}
+.summary{background:#fff;border:1px solid var(--border);border-radius:16px;padding:14px;margin-top:12px}
+.sum-row{display:flex;justify-content:space-between;font-size:12px;margin:8px 0;color:#596274}.sum-row.total{font-size:16px;color:var(--text);font-weight:900;padding-top:9px;border-top:1px dashed var(--border)}
+.checkout{width:100%;background:var(--orange);color:#fff;border-radius:11px;padding:12px;font-weight:900;margin-top:9px}
+.profile-hero{background:linear-gradient(120deg,var(--blue),#2b8cf5);color:#fff;border-radius:18px;padding:18px;display:flex;gap:12px;align-items:center}
+.profile-hero .avatar{background:#fff;color:var(--blue)}
+.profile-hero h2{font-size:17px;margin:0}.profile-hero p{font-size:11px;opacity:.85;margin:3px 0}
+.form{display:grid;gap:9px}.field label{font-size:11px;font-weight:750;color:#596274;display:block;margin:0 0 4px}.field input,.field textarea,.field select{width:100%;border:1px solid var(--border);background:#fff;border-radius:11px;padding:11px;outline:none}
+.primary{background:var(--blue);color:#fff;border-radius:10px;padding:11px;font-weight:850}
+.secondary{background:#eef3f9;color:var(--blue);border-radius:10px;padding:11px;font-weight:800}
+.address-card h4{margin:0 0 5px;font-size:13px}.address-card p{margin:0;color:var(--muted);font-size:11px;line-height:1.5}
+.card-actions{display:flex;gap:7px;margin-top:10px}.card-actions button{padding:7px 10px;border-radius:8px;font-size:10px;font-weight:800}
+.status{display:inline-flex;padding:5px 8px;border-radius:99px;background:#eaf7ef;color:var(--green);font-size:10px;font-weight:850}
+.order-card h4{margin:0;font-size:13px}.order-meta{font-size:10px;color:var(--muted);margin:4px 0 10px}
+.order-products{display:grid;gap:7px}.order-product{display:flex;justify-content:space-between;font-size:11px;padding:7px 0;border-top:1px solid #f0f2f5}
+.toast{
+  position:fixed;z-index:100;left:50%;bottom:84px;transform:translate(-50%,15px);opacity:0;pointer-events:none;
+  background:#172033;color:#fff;padding:10px 14px;border-radius:10px;font-size:12px;font-weight:700;transition:.2s;max-width:90%;text-align:center
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.modal{display:none;position:fixed;inset:0;z-index:80;background:rgba(12,22,38,.5);align-items:flex-end;justify-content:center}
+.modal.show{display:flex}
+.modal-box{width:min(720px,100%);background:#fff;border-radius:20px 20px 0 0;padding:18px;max-height:88vh;overflow:auto}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}.modal-head h3{margin:0;font-size:17px}
+@media(min-width:721px){
+  .app{box-shadow:0 0 35px rgba(20,38,70,.08)}
+  body{background:#e9edf4}
+  .bottom{max-width:720px}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="topbar">
+    <div class="toprow">
+      <div class="brand">
+        <div class="logo">L</div>
+        <div><h1>LKR Bazaar</h1><small>Shop local. Shop smart.</small></div>
+      </div>
+      <button class="icon-btn" onclick="openProfile()" aria-label="Profile">👤</button>
+    </div>
+    <div class="search">
+      <span>⌕</span>
+      <input id="globalSearch" type="search" placeholder="Search products, shops..." oninput="handleSearch(this.value)">
+      <span>🎙️</span>
+    </div>
+  </header>
+
+  <main id="homePage" class="page active"></main>
+  <main id="categoriesPage" class="page"></main>
+  <main id="shopsPage" class="page"></main>
+  <main id="cartPage" class="page"></main>
+
+  <nav class="bottom">
+    <button class="nav-btn active" data-page="home" onclick="navigate('home')"><span class="nav-icon">⌂</span>Home</button>
+    <button class="nav-btn" data-page="categories" onclick="navigate('categories')"><span class="nav-icon">▦</span>Categories</button>
+    <button class="nav-btn" data-page="shops" onclick="navigate('shops')"><span class="nav-icon">🏪</span>Shops</button>
+    <button class="nav-btn" data-page="cart" onclick="navigate('cart')"><span class="nav-icon">🛒</span>Cart <span id="cartBadge" class="nav-cart-badge">0</span></button>
+  </nav>
+</div>
+
+<div id="profileOverlay" class="overlay" onclick="closeProfile(event)">
+  <aside class="drawer" onclick="event.stopPropagation()">
+    <div class="drawer-head">
+      <div class="avatar" id="drawerAvatar">S</div>
+      <div><h3 id="drawerName">Shivam Kumar</h3><p id="drawerMobile">+91 98765 43210</p></div>
+      <button class="close" onclick="closeProfile()">×</button>
+    </div>
+    <div class="menu-section">
+      <div class="menu-title">My Account</div>
+      <button class="menu-item" onclick="showAccount('profile')"><span class="mi">👤</span> Edit Profile <span class="arrow">›</span></button>
+      <button class="menu-item" onclick="showAccount('orders')"><span class="mi">📦</span> My Orders <span class="arrow">›</span></button>
+      <button class="menu-item" onclick="showAccount('wishlist')"><span class="mi">❤️</span> Wishlist / Favorites <span class="arrow">›</span></button>
+      <button class="menu-item" onclick="showAccount('addresses')"><span class="mi">📍</span> Delivery Addresses <span class="arrow">›</span></button>
+      <button class="menu-item" onclick="showAccount('notifications')"><span class="mi">🔔</span> Notifications <span class="arrow">›</span></button>
+    </div>
+    <div class="menu-section">
+      <div class="menu-title">Account</div>
+      <button class="menu-item" onclick="demoLogout()"><span class="mi">🚪</span> Logout <span class="arrow">›</span></button>
+    </div>
+  </aside>
+</div>
+
+<div id="detail" class="detail-wrap">
+  <div class="detail-top">
+    <button class="back" onclick="closeDetail()">‹</button>
+    <strong>Product Details</strong>
+    <button class="icon-btn" onclick="toggleWish(currentProductId)">♡</button>
+  </div>
+  <div id="detailContent"></div>
+</div>
+
+<div id="accountModal" class="modal">
+  <div class="modal-box">
+    <div class="modal-head"><h3 id="accountTitle">Account</h3><button class="close" onclick="closeAccount()">×</button></div>
+    <div id="accountContent"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+/* ============================================================
+   LKR Bazaar — Demo Data Layer
+   Later these objects can be replaced with Firebase/Firestore
+   repositories without changing the UI functions.
+   ============================================================ */
+const DB = {
+  user: { id:"demo-user-001", fullName:"Shivam Kumar", mobile:"+91 98765 43210" },
+  categories: [
+    {id:"all", name:"All", icon:"🛍️"},
+    {id:"grocery", name:"Grocery", icon:"🥦"},
+    {id:"electronics", name:"Electronics", icon:"📱"},
+    {id:"fashion", name:"Fashion", icon:"👕"},
+    {id:"home", name:"Home", icon:"🏠"},
+    {id:"beauty", name:"Beauty", icon:"💄"},
+    {id:"footwear", name:"Footwear", icon:"👟"},
+    {id:"stationery", name:"Stationery", icon:"📚"}
+  ],
+  shops: [
+    {id:"shop-1",name:"LKR Super Mart",category:"Grocery",icon:"🛒",location:"Main Market"},
+    {id:"shop-2",name:"Tech Point",category:"Electronics",icon:"📱",location:"Station Road"},
+    {id:"shop-3",name:"Style Corner",category:"Fashion",icon:"👗",location:"Bazaar Road"},
+    {id:"shop-4",name:"Home Needs",category:"Home & Living",icon:"🏠",location:"College Road"}
+  ],
+  products: [
+    {id:"p1",shopId:"shop-1",category:"grocery",name:"Premium Basmati Rice 5kg",price:499,mrp:599,stock:28,emoji:"🍚",image:"",description:"Long-grain premium basmati rice, suitable for everyday meals and special occasions.",featured:true,latest:true},
+    {id:"p2",shopId:"shop-1",category:"grocery",name:"Fresh Cooking Oil 1L",price:149,mrp:175,stock:45,emoji:"🫗",image:"",description:"Light and versatile cooking oil for daily kitchen use.",featured:true,latest:false},
+    {id:"p3",shopId:"shop-1",category:"grocery",name:"Organic Green Tea",price:179,mrp:220,stock:18,emoji:"🍵",image:"",description:"Refreshing green tea leaves packed for a fresh cup every time.",featured:false,latest:true},
+    {id:"p4",shopId:"shop-2",category:"electronics",name:"Wireless Bluetooth Earbuds",price:799,mrp:1299,stock:12,emoji:"🎧",image:"",description:"Compact wireless earbuds with charging case and comfortable fit.",featured:true,latest:true},
+    {id:"p5",shopId:"shop-2",category:"electronics",name:"Smart LED Desk Lamp",price:649,mrp:899,stock:9,emoji:"💡",image:"",description:"Modern desk lamp with adjustable brightness for work and study.",featured:true,latest:false},
+    {id:"p6",shopId:"shop-3",category:"fashion",name:"Classic Cotton T-Shirt",price:399,mrp:599,stock:24,emoji:"👕",image:"",description:"Soft cotton regular-fit T-shirt for casual everyday wear.",featured:true,latest:true},
+    {id:"p7",shopId:"shop-3",category:"footwear",name:"Everyday Sports Shoes",price:999,mrp:1499,stock:14,emoji:"👟",image:"",description:"Lightweight everyday sports shoes designed for comfort.",featured:false,latest:true},
+    {id:"p8",shopId:"shop-4",category:"home",name:"Non-Stick Fry Pan",price:549,mrp:799,stock:16,emoji:"🍳",image:"",description:"Durable non-stick frying pan for quick and easy cooking.",featured:true,latest:false},
+    {id:"p9",shopId:"shop-4",category:"home",name:"Cotton Cushion Set",price:449,mrp:699,stock:20,emoji:"🛋️",image:"",description:"Comfortable decorative cotton cushions for your living space.",featured:false,latest:true},
+    {id:"p10",shopId:"shop-4",category:"beauty",name:"Daily Care Face Wash",price:199,mrp:249,stock:30,emoji:"🧴",image:"",description:"Gentle daily face wash for a clean and fresh feel.",featured:false,latest:true}
+  ],
+  cart: [
+    {productId:"p2",qty:1}
+  ],
+  wishlist:["p4"],
+  addresses:[
+    {id:"a1",label:"Home",name:"Shivam Kumar",mobile:"+91 98765 43210",line:"House No. 12, Main Road",city:"Begusarai",state:"Bihar",pincode:"851101"}
+  ],
+  orders:[
+    {
+      id:"LKR100124",date:"24 Sep 2026, 10:32 AM",status:"Out for Delivery",total:948,
+      address:"House No. 12, Main Road, Begusarai, Bihar - 851101",
+      products:[{productId:"p1",qty:1,price:499},{productId:"p2",qty:3,price:149}]
+    },
+    {
+      id:"LKR100117",date:"20 Sep 2026, 06:15 PM",status:"Delivered",total:799,
+      address:"House No. 12, Main Road, Begusarai, Bihar - 851101",
+      products:[{productId:"p4",qty:1,price:799}]
+    }
+  ]
+};
+
+let state = { page:"home", search:"", selectedCategory:"all", selectedShop:null };
+let currentProductId = null;
+let detailQty = 1;
+
+function money(n){ return "₹" + Number(n).toLocaleString("en-IN"); }
+function product(id){ return DB.products.find(p=>p.id===id); }
+function shop(id){ return DB.shops.find(s=>s.id===id); }
+function discount(p){ return p.mrp > p.price ? Math.round((1-p.price/p.mrp)*100) : 0; }
+function imageOrEmoji(p, cls="emoji"){
+  return p.image ? `<img src="${escapeAttr(p.image)}" alt="${escapeAttr(p.name)}">` : `<span class="${cls}">${p.emoji||"🛍️"}</span>`;
+}
+function escapeAttr(v){ return String(v).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function escapeHtml(v){ return escapeAttr(v); }
+
+function renderAll(){
+  renderHome(); renderCategories(); renderShops(); renderCart(); updateCartBadge();
+}
+function navigate(page){
+  state.page=page;
+  document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+  document.getElementById(page+"Page").classList.add("active");
+  document.querySelectorAll(".nav-btn").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
+  window.scrollTo({top:0,behavior:"smooth"});
+  if(page==="cart") renderCart();
+}
+function handleSearch(value){
+  state.search=value.trim().toLowerCase();
+  if(state.search && state.page!=="home") navigate("home");
+  renderHome();
+}
+function productMatches(p){
+  if(!state.search) return true;
+  const s=state.search;
+  return (p.name+" "+p.category+" "+(shop(p.shopId)?.name||"")).toLowerCase().includes(s);
+}
+function productCard(p){
+  const wished=DB.wishlist.includes(p.id);
+  return `<article class="product" onclick="openDetail('${p.id}')">
+    <div class="product-img">${imageOrEmoji(p)}
+      <button class="wish ${wished?"on":""}" onclick="event.stopPropagation();toggleWish('${p.id}')">${wished?"♥":"♡"}</button>
+    </div>
+    <div class="product-info">
+      <div class="product-name">${escapeHtml(p.name)}</div>
+      <div class="shop-line">${escapeHtml(shop(p.shopId)?.name||"LKR Shop")}</div>
+      <div class="price-row"><span class="price">${money(p.price)}</span><span class="old">${money(p.mrp)}</span><span class="discount">${discount(p)}% OFF</span></div>
+      <button class="add" onclick="event.stopPropagation();addToCart('${p.id}')">Add to Cart</button>
+    </div>
+  </article>`;
+}
+function section(title,items,more){
+  if(!items.length)return "";
+  return `<div class="section-head"><h3>${title}</h3>${more?`<button onclick="${more}">View all ›</button>`:""}</div><div class="product-grid">${items.map(productCard).join("")}</div>`;
+}
+function renderHome(){
+  const filtered=DB.products.filter(productMatches);
+  const featured=filtered.filter(p=>p.featured).slice(0,6);
+  const latest=filtered.filter(p=>p.latest).slice(0,6);
+  const cats=DB.categories.filter(c=>c.id!=="all").slice(0,7);
+  document.getElementById("homePage").innerHTML=`
+    ${state.search ? `<div class="section-head"><h3>Search results</h3><button onclick="clearSearch()">Clear</button></div>${filtered.length?`<div class="product-grid">${filtered.map(productCard).join("")}</div>`:`<div class="empty"><div class="big">🔎</div>No products found for “${escapeHtml(state.search)}”</div>`}` : `
+    <div class="hero">
+      <div class="hero-text"><h2>Everything you need, closer to home.</h2><p>Discover products from your favourite local shops.</p><button onclick="navigate('shops')">Explore Shops →</button></div>
+      <div class="hero-art">🛍️</div>
+    </div>
+    <div class="section-head"><h3>Shop by Category</h3><button onclick="navigate('categories')">View all ›</button></div>
+    <div class="hscroll">${cats.map(c=>`<button class="cat" onclick="selectCategory('${c.id}')"><div class="cat-icon">${c.icon}</div><span>${c.name}</span></button>`).join("")}</div>
+    ${section("Featured Products",featured,"navigate('categories')")}
+    ${section("Latest Products",latest,"navigate('categories')")}
+    `}
+  `;
+}
+function selectCategory(id){
+  state.selectedCategory=id;
+  navigate("categories");
+}
+function clearSearch(){
+  document.getElementById("globalSearch").value="";
+  state.search=""; renderHome();
+}
+function renderCategories(){
+  let items=DB.products.filter(productMatches);
+  if(state.selectedCategory!=="all") items=items.filter(p=>p.category===state.selectedCategory);
+  const catName=DB.categories.find(c=>c.id===state.selectedCategory)?.name||"All";
+  document.getElementById("categoriesPage").innerHTML=`
+    <div class="section-head"><h3>Categories</h3><span style="font-size:11px;color:var(--muted)">${DB.products.length} products</span></div>
+    <div class="filterbar">${DB.categories.map(c=>`<button class="chip ${state.selectedCategory===c.id?"active":""}" onclick="state.selectedCategory='${c.id}';renderCategories()">${c.icon} ${c.name}</button>`).join("")}</div>
+    <div class="section-head"><h3>${catName} Products</h3></div>
+    ${items.length?`<div class="product-grid">${items.map(productCard).join("")}</div>`:`<div class="empty"><div class="big">📦</div>No products in this category.</div>`}
+  `;
+}
+function renderShops(){
+  const q=state.search;
+  const shops=DB.shops.filter(s=>!q||(s.name+" "+s.category).toLowerCase().includes(q));
+  const selected=state.selectedShop ? shop(state.selectedShop):null;
+  if(selected){
+    const items=DB.products.filter(p=>p.shopId===selected.id && productMatches(p));
+    document.getElementById("shopsPage").innerHTML=`
+      <div class="section-head"><button onclick="state.selectedShop=null;renderShops()" style="color:var(--blue);background:none">‹ All Shops</button><h3>${escapeHtml(selected.name)}</h3><span></span></div>
+      <div class="shop-card" style="margin-bottom:12px"><div class="shop-logo">${selected.icon}</div><div><h4>${escapeHtml(selected.name)}</h4><p>${escapeHtml(selected.category)} • ${escapeHtml(selected.location)}</p></div></div>
+      ${items.length?`<div class="product-grid">${items.map(productCard).join("")}</div>`:`<div class="empty"><div class="big">📦</div>No products found.</div>`}
+    `;
+    return;
+  }
+  document.getElementById("shopsPage").innerHTML=`
+    <div class="section-head"><h3>All Shops</h3><span style="font-size:11px;color:var(--muted)">${shops.length} shops</span></div>
+    <div class="list">${shops.map(s=>`<button class="shop-card" onclick="state.selectedShop='${s.id}';renderShops()"><div class="shop-logo">${s.icon}</div><div style="text-align:left"><h4>${escapeHtml(s.name)}</h4><p>${escapeHtml(s.category)} • ${escapeHtml(s.location)}</p></div><span class="arrow">›</span></button>`).join("")}</div>
+  `;
+}
+function cartLines(){
+  return DB.cart.map(c=>({line:c,p:product(c.productId)})).filter(x=>x.p);
+}
+function cartCount(){return DB.cart.reduce((n,c)=>n+c.qty,0)}
+function cartTotal(){return cartLines().reduce((n,x)=>n+x.p.price*x.line.qty,0)}
+function updateCartBadge(){
+  const b=document.getElementById("cartBadge"); const n=cartCount();
+  b.textContent=n;b.style.display=n?"block":"none";
+}
+function addToCart(id,qty=1){
+  const p=product(id); if(!p)return;
+  const line=DB.cart.find(c=>c.productId===id);
+  const newQty=(line?line.qty:0)+qty;
+  if(newQty>p.stock){toast("Only "+p.stock+" units available");return}
+  if(line)line.qty=newQty; else DB.cart.push({productId:id,qty});
+  updateCartBadge(); renderCart(); toast("Added to cart");
+}
+function changeCartQty(id,delta){
+  const line=DB.cart.find(c=>c.productId===id); const p=product(id); if(!line)return;
+  line.qty+=delta;
+  if(line.qty>p.stock)line.qty=p.stock;
+  if(line.qty<=0)DB.cart=DB.cart.filter(c=>c.productId!==id);
+  renderCart(); updateCartBadge();
+}
+function removeCart(id){
+  DB.cart=DB.cart.filter(c=>c.productId!==id);renderCart();updateCartBadge();toast("Product removed");
+}
+function renderCart(){
+  const lines=cartLines();
+  document.getElementById("cartPage").innerHTML=`
+    <div class="section-head"><h3>My Cart</h3><span style="font-size:11px;color:var(--muted)">${cartCount()} items</span></div>
+    ${lines.length?`
+      <div class="list">${lines.map(x=>`<div class="cart-item">
+        <div class="cart-thumb">${imageOrEmoji(x.p)}</div>
+        <div class="cart-main"><h4>${escapeHtml(x.p.name)}</h4><p>${escapeHtml(shop(x.p.shopId)?.name||"LKR Shop")}</p>
+          <div class="cart-bottom"><strong>${money(x.p.price*x.line.qty)}</strong>
+            <div class="mini-qty"><button onclick="changeCartQty('${x.p.id}',-1)">−</button><b>${x.line.qty}</b><button onclick="changeCartQty('${x.p.id}',1)">+</button></div>
+          </div>
+        </div><button class="remove" onclick="removeCart('${x.p.id}')">Remove</button>
+      </div>`).join("")}</div>
+      <div class="summary">
+        <div class="sum-row"><span>Total quantity</span><strong>${cartCount()}</strong></div>
+        <div class="sum-row"><span>Subtotal</span><strong>${money(cartTotal())}</strong></div>
+        <div class="sum-row"><span>Delivery</span><strong>Free</strong></div>
+        <div class="sum-row total"><span>Total Amount</span><strong>${money(cartTotal())}</strong></div>
+        <button class="checkout" onclick="checkout()">Proceed to Checkout →</button>
+      </div>
+    `:`<div class="empty"><div class="big">🛒</div><h3>Your cart is empty</h3><p>Add products from local shops to see them here.</p><button class="primary" onclick="navigate('home')">Continue Shopping</button></div>`}
+  `;
+}
+function openDetail(id){
+  const p=product(id);if(!p)return;currentProductId=id;detailQty=1;
+  document.getElementById("detailContent").innerHTML=`
+    <div class="detail-img">${imageOrEmoji(p)}</div>
+    <div class="detail-body">
+      <h2>${escapeHtml(p.name)}</h2>
+      <div class="detail-shop">🏪 ${escapeHtml(shop(p.shopId)?.name||"LKR Shop")} • ${escapeHtml(shop(p.shopId)?.location||"Local shop")}</div>
+      <div><span class="detail-price">${money(p.price)}</span><span class="detail-old">${money(p.mrp)}</span><span class="discount">${discount(p)}% OFF</span></div>
+      <div class="stock">${p.stock>0?"✓ "+p.stock+" units available":"Out of stock"}</div>
+      <p class="detail-desc">${escapeHtml(p.description)}</p>
+      <div class="qty"><b>Quantity</b><button onclick="detailChange(-1)">−</button><strong id="detailQty">1</strong><button onclick="detailChange(1)">+</button></div>
+      <div class="action-row"><button class="cart-action" onclick="addDetailToCart()">Add to Cart</button><button class="buy" onclick="buyNow()">Buy Now</button></div>
+    </div>
+  `;
+  document.getElementById("detail").classList.add("show"); document.body.style.overflow="hidden";
+}
+function closeDetail(){document.getElementById("detail").classList.remove("show");document.body.style.overflow="";}
+function detailChange(d){
+  const p=product(currentProductId);detailQty=Math.max(1,Math.min(p.stock,detailQty+d));
+  document.getElementById("detailQty").textContent=detailQty;
+}
+function addDetailToCart(){addToCart(currentProductId,detailQty);closeDetail();}
+function buyNow(){addToCart(currentProductId,detailQty);closeDetail();navigate("cart");toast("Ready for checkout");}
+function toggleWish(id){
+  if(DB.wishlist.includes(id)) DB.wishlist=DB.wishlist.filter(x=>x!==id);
+  else DB.wishlist.push(id);
+  renderAll();
+  if(currentProductId===id && document.getElementById("detail").classList.contains("show")){}
+  toast(DB.wishlist.includes(id)?"Added to wishlist":"Removed from wishlist");
+}
+function openProfile(){document.getElementById("profileOverlay").classList.add("show");}
+function closeProfile(e){if(!e||e.target===document.getElementById("profileOverlay"))document.getElementById("profileOverlay").classList.remove("show");}
+function showAccount(type){
+  closeProfile();
+  const titles={profile:"Edit Profile",orders:"My Orders",wishlist:"Wishlist / Favorites",addresses:"Delivery Addresses",notifications:"Notifications"};
+  document.getElementById("accountTitle").textContent=titles[type];
+  document.getElementById("accountContent").innerHTML=accountTemplate(type);
+  document.getElementById("accountModal").classList.add("show");
+}
+function closeAccount(){document.getElementById("accountModal").classList.remove("show");}
+function accountTemplate(type){
+  if(type==="profile")return `<div class="form">
+    <div class="profile-hero"><div class="avatar">${(DB.user.fullName||"U")[0]}</div><div><h2>${escapeHtml(DB.user.fullName)}</h2><p>${escapeHtml(DB.user.mobile)}</p></div></div>
+    <div class="field"><label>Full Name</label><input id="editName" value="${escapeAttr(DB.user.fullName)}"></div>
+    <div class="field"><label>Mobile Number</label><input id="editMobile" value="${escapeAttr(DB.user.mobile)}"></div>
+    <button class="primary" onclick="saveProfile()">Save Changes</button></div>`;
+  if(type==="orders")return `<div class="list">${DB.orders.map(o=>`<div class="order-card"><div style="display:flex;justify-content:space-between;gap:8px"><div><h4>Order #${o.id}</h4><div class="order-meta">${o.date}</div></div><span class="status">${o.status}</span></div><div class="order-products">${o.products.map(x=>`<div class="order-product"><span>${escapeHtml(product(x.productId)?.name||"Product")} × ${x.qty}</span><strong>${money(x.price*x.qty)}</strong></div>`).join("")}</div><div style="font-size:11px;color:var(--muted);margin-top:8px">📍 ${escapeHtml(o.address)}</div><div style="display:flex;justify-content:space-between;margin-top:10px;font-weight:850;font-size:13px"><span>Total</span><span>${money(o.total)}</span></div></div>`).join("")}</div>`;
+  if(type==="wishlist"){
+    const items=DB.products.filter(p=>DB.wishlist.includes(p.id));
+    return items.length?`<div class="product-grid">${items.map(productCard).join("")}</div>`:`<div class="empty"><div class="big">❤️</div>Your wishlist is empty.</div>`;
+  }
+  if(type==="addresses")return `<div class="list">${DB.addresses.map(a=>`<div class="address-card"><h4>${escapeHtml(a.label)}</h4><p><b>${escapeHtml(a.name)}</b> • ${escapeHtml(a.mobile)}<br>${escapeHtml(a.line)}, ${escapeHtml(a.city)}, ${escapeHtml(a.state)} - ${escapeHtml(a.pincode)}</p><div class="card-actions"><button class="secondary" onclick="editAddress('${a.id}')">Edit</button><button style="background:#fff0f0;color:var(--red)" onclick="deleteAddress('${a.id}')">Delete</button></div></div>`).join("")}<button class="primary" onclick="addAddress()">+ Add New Address</button></div>`;
+  return `<div class="info-card"><div style="font-size:38px">🔔</div><h3 style="margin:8px 0">Notifications</h3><p style="font-size:12px;color:var(--muted);line-height:1.6">Order updates, offers and important account notifications will appear here.</p><div class="info-card" style="margin-top:10px;background:#f7fbff"><b style="font-size:12px">Demo notification</b><p style="font-size:11px;color:var(--muted);margin:5px 0 0">Your order LKR100124 is out for delivery.</p></div></div>`;
+}
+function saveProfile(){
+  DB.user.fullName=document.getElementById("editName").value.trim()||DB.user.fullName;
+  DB.user.mobile=document.getElementById("editMobile").value.trim()||DB.user.mobile;
+  document.getElementById("drawerName").textContent=DB.user.fullName;
+  document.getElementById("drawerMobile").textContent=DB.user.mobile;
+  document.getElementById("drawerAvatar").textContent=DB.user.fullName[0]||"U";
+  closeAccount();toast("Profile updated");
+}
+function addAddress(){
+  const label=prompt("Address label (Home/Work):","Work"); if(!label)return;
+  const line=prompt("Address line:","Near Main Road");if(!line)return;
+  const city=prompt("City:","Begusarai");if(!city)return;
+  const pin=prompt("Pincode:","851101");if(!pin)return;
+  DB.addresses.push({id:"a"+Date.now(),label,name:DB.user.fullName,mobile:DB.user.mobile,line,city,state:"Bihar",pincode:pin});
+  showAccount("addresses");toast("Address added");
+}
+function editAddress(id){
+  const a=DB.addresses.find(x=>x.id===id);if(!a)return;
+  const line=prompt("Update address:",a.line);if(line!==null)a.line=line;
+  const pin=prompt("Update pincode:",a.pincode);if(pin!==null)a.pincode=pin;
+  showAccount("addresses");toast("Address updated");
+}
+function deleteAddress(id){
+  if(DB.addresses.length<=1){toast("Keep at least one delivery address");return}
+  DB.addresses=DB.addresses.filter(a=>a.id!==id);showAccount("addresses");toast("Address deleted");
+}
+function checkout(){
+  if(!DB.cart.length){toast("Your cart is empty");return}
+  if(!DB.addresses.length){toast("Please add a delivery address");return}
+  const order={
+    id:"LKR"+Math.floor(100000+Math.random()*899999),
+    date:new Date().toLocaleString("en-IN",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}),
+    status:"Order Placed",total:cartTotal(),
+    address:`${DB.addresses[0].line}, ${DB.addresses[0].city}, ${DB.addresses[0].state} - ${DB.addresses[0].pincode}`,
+    products:DB.cart.map(c=>({productId:c.productId,qty:c.qty,price:product(c.productId).price}))
+  };
+  DB.orders.unshift(order); DB.cart=[]; renderAll(); toast("Order placed successfully • #"+order.id);
+}
+function demoLogout(){closeProfile();toast("Demo logout — connect Firebase Auth later");}
+
+/* Initial render */
+document.getElementById("drawerName").textContent=DB.user.fullName;
+document.getElementById("drawerMobile").textContent=DB.user.mobile;
+document.getElementById("drawerAvatar").textContent=DB.user.fullName[0]||"U";
+renderAll();
+
+let toastTimer;
+function toast(message){
+  const el=document.getElementById("toast");el.textContent=message;el.classList.add("show");
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),2200);
+}
+</script>
+</body>
+</html>
