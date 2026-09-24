@@ -1,746 +1,301 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b63ce">
 <title>LKR Bazaar — User App</title>
+<link rel="icon" type="image/jpeg" href="https://plain-apac-prod-public.komododecks.com/202609/24/NdmyMUN5fKgUEpcduTk2/image.png">
 <style>
-:root{
-  --blue:#0b63ce;
-  --blue-dark:#084b9b;
-  --blue-soft:#eaf3ff;
-  --orange:#ff8a00;
-  --orange-dark:#ed7200;
-  --green:#149447;
-  --red:#e53935;
-  --text:#172033;
-  --muted:#6c7484;
-  --bg:#f5f7fb;
-  --card:#fff;
-  --border:#e6eaf0;
-  --shadow:0 5px 20px rgba(20,38,70,.08);
-  --radius:16px;
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{
-  margin:0;background:var(--bg);color:var(--text);
-  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  min-height:100vh;
-}
-button,input{font:inherit}
-button{cursor:pointer;border:0}
-a{text-decoration:none;color:inherit}
-.app{max-width:720px;margin:auto;min-height:100vh;background:var(--bg);position:relative}
-.topbar{
-  position:sticky;top:0;z-index:30;background:#fff;
-  padding:12px 16px 10px;border-bottom:1px solid var(--border);
-}
-.toprow{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.brand{display:flex;align-items:center;gap:10px}
-.logo{
-  width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--blue),#1984f7);
-  color:#fff;display:grid;place-items:center;font-weight:900;font-size:18px;
-  box-shadow:0 6px 14px rgba(11,99,206,.22)
-}
-.brand h1{font-size:20px;margin:0;font-weight:850;letter-spacing:-.4px}
-.brand small{display:block;color:var(--muted);font-size:11px;margin-top:1px}
-.icon-btn{
-  width:42px;height:42px;border-radius:13px;background:#f2f6fc;color:var(--text);
-  display:grid;place-items:center;font-size:20px;position:relative
-}
-.badge{
-  position:absolute;right:-3px;top:-3px;min-width:18px;height:18px;padding:0 4px;
-  border-radius:99px;background:var(--orange);color:#fff;font-size:10px;font-weight:800;
-  display:grid;place-items:center;border:2px solid #fff
-}
-.search{
-  margin-top:10px;background:#f2f5f9;border:1px solid #e5eaf1;border-radius:13px;
-  display:flex;align-items:center;padding:0 12px;height:45px
-}
-.search span{font-size:18px;color:#7a8494}
-.search input{width:100%;border:0;outline:0;background:transparent;padding:0 9px;color:var(--text)}
-.page{display:none;padding:14px 14px 94px}
-.page.active{display:block}
-.hero{
-  background:linear-gradient(115deg,var(--blue),#197cf0 60%,#4aa0ff);
-  border-radius:20px;color:#fff;padding:20px;min-height:170px;
-  display:flex;align-items:center;justify-content:space-between;overflow:hidden;position:relative;
-  box-shadow:0 10px 25px rgba(11,99,206,.2)
-}
-.hero:after{
-  content:"";position:absolute;width:180px;height:180px;border-radius:50%;right:-55px;bottom:-75px;
-  background:rgba(255,255,255,.13)
-}
-.hero-text{position:relative;z-index:1;max-width:65%}
-.hero h2{font-size:23px;line-height:1.15;margin:0 0 7px}
-.hero p{font-size:12px;opacity:.9;margin:0 0 15px}
-.hero button{background:var(--orange);color:#fff;border-radius:10px;padding:9px 13px;font-weight:800;font-size:12px}
-.hero-art{font-size:76px;position:relative;z-index:1;transform:rotate(-5deg)}
-.section-head{display:flex;align-items:center;justify-content:space-between;margin:20px 2px 11px}
-.section-head h3{font-size:17px;margin:0}
-.section-head button{background:none;color:var(--blue);font-size:12px;font-weight:750}
-.hscroll{display:flex;gap:11px;overflow:auto;padding:2px 1px 6px;scrollbar-width:none}
-.hscroll::-webkit-scrollbar{display:none}
-.cat{
-  min-width:74px;background:#fff;border:1px solid var(--border);border-radius:15px;padding:9px 7px;
-  text-align:center;box-shadow:0 3px 10px rgba(20,38,70,.04)
-}
-.cat .cat-icon{width:42px;height:42px;border-radius:13px;margin:auto;background:var(--blue-soft);display:grid;place-items:center;font-size:22px}
-.cat span{display:block;font-size:10px;font-weight:700;margin-top:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.product-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
-.product{
-  background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 3px 12px rgba(20,38,70,.05);min-width:0
-}
-.product-img{height:145px;background:#f2f6fb;position:relative;display:grid;place-items:center;overflow:hidden}
-.product-img img{width:100%;height:100%;object-fit:cover}
-.product-img .emoji{font-size:60px}
-.wish{
-  position:absolute;right:8px;top:8px;width:31px;height:31px;border-radius:50%;background:#fff;
-  display:grid;place-items:center;font-size:17px;box-shadow:0 2px 8px rgba(0,0,0,.1)
-}
-.wish.on{color:var(--red)}
-.product-info{padding:10px}
-.product-name{font-size:13px;font-weight:750;line-height:1.3;min-height:34px}
-.shop-line{font-size:10px;color:var(--muted);margin:4px 0}
-.price-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.price{font-size:15px;font-weight:900}
-.old{text-decoration:line-through;color:#9aa2af;font-size:10px}
-.discount{color:var(--green);font-size:10px;font-weight:800}
-.add{
-  width:100%;margin-top:8px;background:var(--orange);color:#fff;border-radius:9px;padding:8px 5px;
-  font-size:11px;font-weight:850
-}
-.empty{text-align:center;padding:45px 20px;color:var(--muted)}
-.empty .big{font-size:48px;margin-bottom:8px}
-.list{display:grid;gap:10px}
-.shop-card,.order-card,.profile-card,.address-card,.cart-item,.info-card{
-  background:#fff;border:1px solid var(--border);border-radius:16px;padding:13px;box-shadow:0 3px 12px rgba(20,38,70,.04)
-}
-.shop-card{display:flex;gap:12px;align-items:center}
-.shop-logo{width:58px;height:58px;border-radius:15px;background:var(--blue-soft);display:grid;place-items:center;font-size:28px;flex:none}
-.shop-card h4{margin:0 0 4px;font-size:14px}
-.shop-card p{margin:0;color:var(--muted);font-size:11px}
-.shop-card .arrow{margin-left:auto;color:var(--blue);font-size:20px}
-.filterbar{display:flex;gap:8px;overflow:auto;margin-bottom:12px}
-.chip{white-space:nowrap;padding:8px 12px;border-radius:99px;background:#fff;border:1px solid var(--border);font-size:11px;font-weight:700}
-.chip.active{background:var(--blue);color:#fff;border-color:var(--blue)}
-.bottom{
-  position:fixed;z-index:40;bottom:0;left:50%;transform:translateX(-50%);
-  width:min(720px,100%);height:70px;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);
-  border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(5,1fr);
-  padding:5px 6px max(5px,env(safe-area-inset-bottom))
-}
-.nav-btn{background:none;color:#7d8696;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;font-weight:700;position:relative}
-.nav-btn .nav-icon{font-size:20px;line-height:20px}
-.nav-btn.active{color:var(--blue)}
-.nav-cart-badge{position:absolute;top:3px;margin-left:22px;background:var(--orange);color:#fff;border-radius:99px;font-size:9px;padding:1px 4px}
-.overlay{display:none;position:fixed;inset:0;background:rgba(12,22,38,.48);z-index:60}
-.overlay.show{display:block}
-.drawer{
-  position:absolute;right:0;top:0;height:100%;width:min(92%,390px);background:var(--bg);
-  overflow:auto;padding-bottom:30px;animation:slide .22s ease-out
-}
-@keyframes slide{from{transform:translateX(100%)}to{transform:translateX(0)}}
-.drawer-head{background:#fff;padding:16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)}
-.avatar{width:54px;height:54px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-size:22px;font-weight:800}
-.drawer-head h3{margin:0;font-size:16px}.drawer-head p{margin:3px 0 0;color:var(--muted);font-size:11px}
-.close{margin-left:auto;background:#f0f3f7;width:36px;height:36px;border-radius:11px;font-size:18px}
-.menu-section{padding:12px}
-.menu-title{font-size:11px;color:var(--muted);font-weight:800;margin:5px 4px 8px;text-transform:uppercase}
-.menu-item{
-  background:#fff;border:1px solid var(--border);border-radius:13px;padding:13px;margin-bottom:8px;
-  display:flex;align-items:center;gap:11px;font-size:13px;font-weight:700
-}
-.menu-item .mi{width:30px;height:30px;border-radius:9px;background:var(--blue-soft);display:grid;place-items:center}
-.menu-item .arrow{margin-left:auto;color:#9aa2af}
-.detail-wrap{position:fixed;inset:0;z-index:55;background:var(--bg);overflow:auto;display:none}
-.detail-wrap.show{display:block}
-.detail-top{position:sticky;top:0;z-index:3;background:#fff;height:55px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid var(--border)}
-.back{width:38px;height:38px;border-radius:11px;background:#f2f5f9;font-size:20px}
-.detail-img{height:300px;background:#eef4fb;display:grid;place-items:center;position:relative}
-.detail-img img{width:100%;height:100%;object-fit:cover}
-.detail-img .emoji{font-size:110px}
-.detail-body{padding:16px}
-.detail-body h2{margin:0 0 6px;font-size:21px}
-.detail-shop{color:var(--muted);font-size:12px;margin-bottom:10px}
-.detail-price{font-size:24px;font-weight:900}
-.detail-old{text-decoration:line-through;color:#9aa2af;font-size:12px;margin-left:7px}
-.detail-desc{font-size:13px;color:#596274;line-height:1.6;margin:16px 0}
-.stock{font-size:12px;color:var(--green);font-weight:800}
-.qty{display:flex;align-items:center;gap:12px;margin:17px 0}
-.qty button{width:35px;height:35px;border-radius:10px;background:#eaf1fa;color:var(--blue);font-size:20px;font-weight:900}
-.qty strong{min-width:25px;text-align:center}
-.action-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.action-row button{padding:13px;border-radius:11px;font-weight:850}
-.buy{background:var(--blue);color:#fff}.cart-action{background:var(--orange);color:#fff}
-.cart-item{display:flex;gap:10px;align-items:center}
-.cart-thumb{width:72px;height:72px;border-radius:12px;background:#eef4fb;display:grid;place-items:center;overflow:hidden;flex:none}
-.cart-thumb img{width:100%;height:100%;object-fit:cover}.cart-thumb .emoji{font-size:35px}
-.cart-main{flex:1;min-width:0}.cart-main h4{margin:0 0 4px;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cart-main p{margin:0;color:var(--muted);font-size:10px}
-.cart-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
-.mini-qty{display:flex;align-items:center;gap:7px}.mini-qty button{width:27px;height:27px;border-radius:8px;background:#eef3f9;color:var(--blue);font-weight:900}
-.remove{background:none;color:var(--red);font-size:11px}
-.summary{background:#fff;border:1px solid var(--border);border-radius:16px;padding:14px;margin-top:12px}
-.sum-row{display:flex;justify-content:space-between;font-size:12px;margin:8px 0;color:#596274}.sum-row.total{font-size:16px;color:var(--text);font-weight:900;padding-top:9px;border-top:1px dashed var(--border)}
-.checkout{width:100%;background:var(--orange);color:#fff;border-radius:11px;padding:12px;font-weight:900;margin-top:9px}
-.profile-hero{background:linear-gradient(120deg,var(--blue),#2b8cf5);color:#fff;border-radius:18px;padding:18px;display:flex;gap:12px;align-items:center}
-.profile-hero .avatar{background:#fff;color:var(--blue)}
-.profile-hero h2{font-size:17px;margin:0}.profile-hero p{font-size:11px;opacity:.85;margin:3px 0}
-.form{display:grid;gap:9px}.field label{font-size:11px;font-weight:750;color:#596274;display:block;margin:0 0 4px}.field input,.field textarea,.field select{width:100%;border:1px solid var(--border);background:#fff;border-radius:11px;padding:11px;outline:none}
-.primary{background:var(--blue);color:#fff;border-radius:10px;padding:11px;font-weight:850}
-.secondary{background:#eef3f9;color:var(--blue);border-radius:10px;padding:11px;font-weight:800}
-.address-card h4{margin:0 0 5px;font-size:13px}.address-card p{margin:0;color:var(--muted);font-size:11px;line-height:1.5}
-.card-actions{display:flex;gap:7px;margin-top:10px}.card-actions button{padding:7px 10px;border-radius:8px;font-size:10px;font-weight:800}
-.status{display:inline-flex;padding:5px 8px;border-radius:99px;background:#eaf7ef;color:var(--green);font-size:10px;font-weight:850}
-.order-card h4{margin:0;font-size:13px}.order-meta{font-size:10px;color:var(--muted);margin:4px 0 10px}
-.order-products{display:grid;gap:7px}.order-product{display:flex;justify-content:space-between;font-size:11px;padding:7px 0;border-top:1px solid #f0f2f5}
-.toast{
-  position:fixed;z-index:100;left:50%;bottom:84px;transform:translate(-50%,15px);opacity:0;pointer-events:none;
-  background:#172033;color:#fff;padding:10px 14px;border-radius:10px;font-size:12px;font-weight:700;transition:.2s;max-width:90%;text-align:center
-}
-.toast.show{opacity:1;transform:translate(-50%,0)}
-.modal{display:none;position:fixed;inset:0;z-index:80;background:rgba(12,22,38,.5);align-items:flex-end;justify-content:center}
-.modal.show{display:flex}
-.modal-box{width:min(720px,100%);background:#fff;border-radius:20px 20px 0 0;padding:18px;max-height:88vh;overflow:auto}
-.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}.modal-head h3{margin:0;font-size:17px}
-@media(min-width:721px){
-  .app{box-shadow:0 0 35px rgba(20,38,70,.08)}
-  body{background:#e9edf4}
-  .bottom{max-width:720px}
-}
-
-/* Robust gallery, shop filters and mobile interaction fixes */
-.product-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}.product-actions button{border-radius:9px;padding:8px 4px;font-size:10px;font-weight:850}.detail-gallery{background:#eef4fb}.detail-main-photo{height:300px;background:#f0f4f8;display:grid;place-items:center;overflow:hidden}.detail-main-photo img{width:100%;height:100%;object-fit:contain}.detail-thumbs{display:flex;gap:8px;overflow-x:auto;background:#fff;padding:9px 12px;scrollbar-width:none}.detail-thumbs::-webkit-scrollbar{display:none}.detail-thumb{width:62px;height:62px;border-radius:10px;overflow:hidden;border:2px solid transparent;background:#f0f4f8;flex:none;padding:0}.detail-thumb.active{border-color:var(--blue)}.detail-thumb img{width:100%;height:100%;object-fit:cover}.shop-detail-box{background:#fff;border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:12px}.shop-detail-top{display:flex;gap:11px;align-items:center}.shop-detail-box h2{margin:0;font-size:18px}.shop-detail-box p{font-size:11px;color:var(--muted);line-height:1.5;margin:5px 0}.notification{display:flex;gap:10px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:12px}.notification-icon{width:38px;height:38px;border-radius:10px;background:var(--blue-soft);display:grid;place-items:center;font-size:19px;flex:none}.notification h4{margin:0;font-size:12px}.notification p{margin:4px 0 0;font-size:10px;color:var(--muted);line-height:1.5}.detail-wish{width:38px;height:38px;border-radius:11px;background:#f2f5f9;font-size:20px}.detail-wish.on{color:var(--red)}
+:root{--blue:#0b63ce;--blue2:#084caa;--orange:#ff8a00;--bg:#f5f7fb;--card:#fff;--text:#182230;--muted:#687386;--line:#e7ebf1;--danger:#e53935;--green:#159447;--shadow:0 6px 22px rgba(20,42,75,.08);--radius:16px}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}body{min-height:100vh}
+button,input,textarea,select{font:inherit}button{border:0;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}
+#app{min-height:100vh}.shell{max-width:720px;margin:auto;min-height:100vh;background:var(--bg);padding-bottom:82px}
+.top{position:sticky;top:0;z-index:20;background:linear-gradient(135deg,var(--blue),#1680ee);padding:12px 14px;color:#fff;box-shadow:0 3px 14px rgba(0,0,0,.13)}
+.brandrow{display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{font-weight:900;font-size:21px;letter-spacing:.2px}.brand small{display:block;font-size:10px;font-weight:600;opacity:.8}
+.searchrow{display:flex;gap:9px;margin-top:11px}.search{flex:1;display:flex;align-items:center;background:#fff;border-radius:12px;padding:0 12px;color:#7a8494}.search input{width:100%;border:0;outline:0;padding:12px 8px;background:transparent;color:var(--text)}
+.iconbtn{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.16);color:#fff;position:relative;font-size:20px}.badge{position:absolute;right:-3px;top:-4px;background:var(--orange);color:#fff;border-radius:99px;font-size:10px;min-width:17px;height:17px;padding:2px 4px;font-weight:800}
+main{padding:14px}.section{margin:0 0 22px}.sectionhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.section h2{font-size:18px;margin:0}.link{color:var(--blue);font-size:13px;font-weight:800;background:none}
+.hero{background:linear-gradient(120deg,#eaf4ff,#fff3e3);border-radius:20px;padding:18px;display:flex;justify-content:space-between;align-items:center;overflow:hidden}.hero h1{font-size:23px;margin:0 0 6px}.hero p{margin:0;color:var(--muted);font-size:13px}.hero strong{color:var(--orange)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 1px 5px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}.chip{white-space:nowrap;padding:9px 13px;border-radius:999px;background:#fff;border:1px solid var(--line);font-size:12px;font-weight:750;color:#465164}.chip.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.catgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.cat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 5px;text-align:center;box-shadow:var(--shadow)}.cat .ico{font-size:25px}.cat span{display:block;margin-top:5px;font-size:11px;font-weight:750}
+.products{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.card{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}.pimg{height:170px;background:#eef2f6;position:relative;cursor:pointer}.pimg img{width:100%;height:100%;object-fit:cover;display:block}.wish{position:absolute;right:8px;top:8px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.94);font-size:18px;box-shadow:0 2px 9px #0002}.wish.on{color:#e53935}.pbody{padding:10px}.pname{font-weight:800;font-size:14px;line-height:1.25;min-height:35px}.shopline{font-size:11px;color:var(--muted);margin:5px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.price{font-size:17px;font-weight:900}.old{text-decoration:line-through;color:#9aa3af;font-size:11px;margin-left:4px}.discount{color:var(--green);font-size:11px;font-weight:800;margin-left:4px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:9px}.btn{min-height:40px;border-radius:10px;padding:8px 10px;font-weight:800;font-size:12px}.primary{background:var(--blue);color:#fff}.orange{background:var(--orange);color:#fff}.secondary{background:#eef5ff;color:var(--blue)}.danger{background:#fff0f0;color:var(--danger)}.full{width:100%}
+.list{display:grid;gap:10px}.shopcard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:13px;display:flex;gap:12px;align-items:center;box-shadow:var(--shadow);cursor:pointer}.shoplogo{width:58px;height:58px;flex:0 0 58px;border-radius:15px;background:linear-gradient(135deg,#e9f3ff,#fff1df);display:grid;place-items:center;font-size:27px}.shopinfo{min-width:0;flex:1}.shopinfo h3{margin:0 0 4px;font-size:15px}.shopinfo p{margin:3px 0;color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.count{font-size:11px;color:var(--blue);font-weight:800}
+.pagehead{display:flex;align-items:center;gap:10px;margin-bottom:14px}.back{width:40px;height:40px;border-radius:12px;background:#fff;color:var(--text);box-shadow:var(--shadow);font-size:20px}.pagehead h1{margin:0;font-size:20px}
+.detailHero{background:#fff;border-radius:18px;border:1px solid var(--line);overflow:hidden}.detailMain{height:330px;background:#eef2f6;position:relative}.detailMain img{width:100%;height:100%;object-fit:contain;display:block}.thumbs{display:flex;gap:8px;overflow-x:auto;padding:10px}.thumb{width:62px;height:62px;flex:0 0 62px;border-radius:10px;overflow:hidden;border:2px solid transparent;background:#f1f3f5}.thumb.active{border-color:var(--blue)}.thumb img{width:100%;height:100%;object-fit:cover}.detailbox{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px;margin-top:11px}.detailbox h1{font-size:21px;margin:0 0 7px}.desc{color:var(--muted);line-height:1.55;font-size:13px}.meta{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}.meta div{background:#f7f9fc;padding:10px;border-radius:11px;font-size:11px;color:var(--muted)}.meta strong{display:block;color:var(--text);font-size:13px;margin-top:2px}.qty{display:flex;align-items:center;gap:10px}.qty button{width:36px;height:36px;border-radius:10px;background:#edf4ff;color:var(--blue);font-size:20px;font-weight:900}.qty strong{min-width:24px;text-align:center}.purchase{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
+.shophero{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}.shopheroTop{display:flex;gap:13px}.shophero .shoplogo{width:70px;height:70px;flex-basis:70px}.shophero h1{font-size:20px;margin:2px 0 4px}.shophero p{margin:5px 0;color:var(--muted);font-size:12px;line-height:1.4}
+.cartitem{background:#fff;border:1px solid var(--line);border-radius:16px;padding:10px;display:flex;gap:10px}.cartimg{width:78px;height:78px;border-radius:12px;overflow:hidden;background:#eef2f6;flex:0 0 78px}.cartimg img{width:100%;height:100%;object-fit:cover}.cartbody{min-width:0;flex:1}.cartbody h3{font-size:14px;margin:1px 0 5px}.cartbottom{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:9px}.summary{background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px;margin-top:12px}.row{display:flex;justify-content:space-between;gap:10px;margin:8px 0;font-size:13px}.grand{font-size:18px;font-weight:900;border-top:1px solid var(--line);padding-top:11px}
+.profileHero{background:linear-gradient(135deg,var(--blue),#197ee8);color:#fff;border-radius:18px;padding:18px;display:flex;align-items:center;gap:13px}.avatar{width:58px;height:58px;border-radius:50%;background:#fff;color:var(--blue);display:grid;place-items:center;font-size:25px;font-weight:900}.profileHero h2{margin:0;font-size:18px}.profileHero p{margin:4px 0 0;opacity:.85;font-size:12px}.menu{margin-top:12px;background:#fff;border-radius:17px;border:1px solid var(--line);overflow:hidden}.menuitem{width:100%;display:flex;align-items:center;gap:12px;padding:15px;border-bottom:1px solid var(--line);background:#fff;text-align:left}.menuitem:last-child{border-bottom:0}.menuico{width:34px;height:34px;border-radius:10px;background:#edf4ff;display:grid;place-items:center}.menuitem strong{font-size:13px}.menuitem small{display:block;color:var(--muted);margin-top:2px;font-size:10px}.menuitem .arrow{margin-left:auto;color:#98a2b3}
+.form{background:#fff;border:1px solid var(--line);border-radius:17px;padding:15px}.field{margin-bottom:12px}.field label{display:block;font-size:11px;font-weight:800;margin-bottom:6px;color:#4e596a}.field input,.field textarea,.field select{width:100%;border:1px solid #dce2ea;border-radius:11px;padding:12px;outline:0;background:#fff}.field textarea{min-height:90px;resize:vertical}
+.address{background:#fff;border:1px solid var(--line);border-radius:16px;padding:13px}.address + .address{margin-top:9px}.address.selected{border:2px solid var(--blue)}.address h3{margin:0 0 4px;font-size:14px}.address p{margin:4px 0;color:var(--muted);font-size:12px;line-height:1.45}
+.order{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px}.order+.order{margin-top:10px}.status{display:inline-block;padding:5px 8px;border-radius:999px;background:#eaf7ef;color:var(--green);font-size:10px;font-weight:900}.order h3{font-size:14px;margin:0}.order p{font-size:11px;color:var(--muted);margin:5px 0}.orderproducts{margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+.notice{background:#fff;border:1px solid var(--line);border-radius:15px;padding:13px}.notice+.notice{margin-top:9px}.notice strong{font-size:13px}.notice p{font-size:12px;color:var(--muted);margin:5px 0 0;line-height:1.45}
+.empty{text-align:center;background:#fff;border:1px dashed #ccd4df;border-radius:17px;padding:35px 18px;color:var(--muted)}.empty b{display:block;color:var(--text);margin-bottom:6px}
+.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(720px,100%);z-index:30;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:7px 5px calc(7px + env(safe-area-inset-bottom));box-shadow:0 -5px 20px rgba(20,42,75,.08)}.nav{background:transparent;color:#7a8494;font-size:10px;font-weight:800;padding:4px 2px}.nav span{display:block;font-size:20px;line-height:22px}.nav.active{color:var(--blue)}
+.toast{position:fixed;left:50%;bottom:92px;transform:translate(-50%,20px);background:#17202d;color:#fff;padding:11px 15px;border-radius:11px;font-size:12px;opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:90%;text-align:center}.toast.show{opacity:1;transform:translate(-50%,0)}
+.modal{position:fixed;inset:0;background:#0006;z-index:50;display:none;align-items:flex-end}.modal.show{display:flex}.sheet{background:#fff;width:100%;max-width:720px;margin:auto;border-radius:22px 22px 0 0;max-height:90vh;overflow:auto;padding:18px}.sheethead{display:flex;justify-content:space-between;align-items:center}.close{width:38px;height:38px;border-radius:11px;background:#f1f3f6}
+@media(min-width:600px){.products{grid-template-columns:repeat(3,minmax(0,1fr))}.catgrid{grid-template-columns:repeat(6,1fr)}.pimg{height:190px}}
 </style>
 </head>
 <body>
-<div class="app" id="app">
-  <header class="topbar">
-    <div class="toprow">
-      <div class="brand">
-        <div class="logo">L</div>
-        <div><h1>LKR Bazaar</h1><small>Shop local. Shop smart.</small></div>
-      </div>
-      <button class="icon-btn" onclick="showNotifications()" aria-label="Notifications">🔔<span id="notificationBadge" class="badge">3</span></button>
-    </div>
-    <div class="search">
-      <span>⌕</span>
-      <input id="globalSearch" type="search" placeholder="Search products, shops..." oninput="handleSearch(this.value)">
-      <span>🎙️</span>
-    </div>
-  </header>
-
-  <main id="homePage" class="page active"></main>
-  <main id="categoriesPage" class="page"></main>
-  <main id="shopsPage" class="page"></main>
-  <main id="cartPage" class="page"></main>
-
-  <nav class="bottom">
-    <button class="nav-btn active" data-page="home" onclick="navigate('home')"><span class="nav-icon">⌂</span>Home</button>
-    <button class="nav-btn" data-page="categories" onclick="navigate('categories')"><span class="nav-icon">▦</span>Categories</button>
-    <button class="nav-btn" data-page="shops" onclick="navigate('shops')"><span class="nav-icon">🏪</span>Shops</button>
-    <button class="nav-btn" data-page="cart" onclick="navigate('cart')"><span class="nav-icon">🛒</span>Cart <span id="cartBadge" class="nav-cart-badge">0</span></button>
-    <button class="nav-btn" data-page="profile" onclick="openProfile()"><span class="nav-icon">👤</span>Profile</button>
-  </nav>
-</div>
-
-<div id="profileOverlay" class="overlay" onclick="closeProfile(event)">
-  <aside class="drawer" onclick="event.stopPropagation()">
-    <div class="drawer-head">
-      <div class="avatar" id="drawerAvatar">S</div>
-      <div><h3 id="drawerName">Shivam Kumar</h3><p id="drawerMobile">+91 98765 43210</p></div>
-      <button class="close" onclick="closeProfile()">×</button>
-    </div>
-    <div class="menu-section">
-      <div class="menu-title">My Account</div>
-      <button class="menu-item" onclick="showAccount('profile')"><span class="mi">👤</span> Edit Profile <span class="arrow">›</span></button>
-      <button class="menu-item" onclick="showAccount('orders')"><span class="mi">📦</span> My Orders <span class="arrow">›</span></button>
-      <button class="menu-item" onclick="showAccount('wishlist')"><span class="mi">❤️</span> Wishlist / Favorites <span class="arrow">›</span></button>
-      <button class="menu-item" onclick="showAccount('addresses')"><span class="mi">📍</span> Delivery Addresses <span class="arrow">›</span></button>
-      <button class="menu-item" onclick="showAccount('notifications')"><span class="mi">🔔</span> Notifications <span class="arrow">›</span></button>
-    </div>
-    <div class="menu-section">
-      <div class="menu-title">Account</div>
-      <button class="menu-item" onclick="demoLogout()"><span class="mi">🚪</span> Logout <span class="arrow">›</span></button>
-    </div>
-  </aside>
-</div>
-
-<div id="detail" class="detail-wrap">
-  <div class="detail-top">
-    <button class="back" onclick="closeDetail()">‹</button>
-    <strong>Product Details</strong>
-    <button class="icon-btn" onclick="toggleWish(currentProductId)">♡</button>
-  </div>
-  <div id="detailContent"></div>
-</div>
-
-<div id="accountModal" class="modal">
-  <div class="modal-box">
-    <div class="modal-head"><h3 id="accountTitle">Account</h3><button class="close" onclick="closeAccount()">×</button></div>
-    <div id="accountContent"></div>
-  </div>
-</div>
-
+<div id="app"></div>
 <div id="toast" class="toast"></div>
+<div id="modal" class="modal"><div id="modalContent" class="sheet"></div></div>
 
 <script>
-/* ============================================================
-   LKR Bazaar — Demo Data Layer
-   Later these objects can be replaced with Firebase/Firestore
-   repositories without changing the UI functions.
-   ============================================================ */
-const DB = {
-  user: { id:"demo-user-001", fullName:"Shivam Kumar", mobile:"+91 98765 43210" },
-  categories: [
-    {id:"all", name:"All", icon:"🛍️"},
-    {id:"grocery", name:"Grocery", icon:"🥦"},
-    {id:"electronics", name:"Electronics", icon:"📱"},
-    {id:"fashion", name:"Fashion", icon:"👕"},
-    {id:"home", name:"Home", icon:"🏠"},
-    {id:"beauty", name:"Beauty", icon:"💄"},
-    {id:"footwear", name:"Footwear", icon:"👟"},
-    {id:"stationery", name:"Stationery", icon:"📚"},
-    {id:"cosmetics", name:"Cosmetics", icon:"💋"},
-    {id:"kitchen", name:"Kitchen", icon:"🍳"},
-    {id:"plastic", name:"Plastic Items", icon:"🧺"},
-    {id:"decoration", name:"Decoration", icon:"🪴"}
-  ],
-  shops: [
-    {id:"shop-1",name:"LKR Super Mart",category:"Grocery",icon:"🛒",location:"Main Market, Begusarai, Bihar",description:"Daily grocery, staples and fresh kitchen essentials."},
-    {id:"shop-2",name:"Tech Point",category:"Electronics",icon:"📱",location:"G.D. College Road, Begusarai, Bihar",description:"Mobile accessories, desk gadgets and useful electronics."},
-    {id:"shop-3",name:"Style Corner",category:"Fashion",icon:"👗",location:"Bazaar Road, Begusarai, Bihar",description:"Casual clothing and everyday fashion picks."},
-    {id:"shop-4",name:"Home Needs",category:"Home & Living",icon:"🏠",location:"College Road, Begusarai, Bihar",description:"Home utility and everyday household products."},
-    {id:"shop-5",name:"Glow & Care",category:"Cosmetics",icon:"💄",location:"Station Road, Begusarai, Bihar",description:"Skincare, personal-care and everyday beauty essentials."},
-    {id:"shop-6",name:"Kitchen Corner",category:"Kitchen",icon:"🍳",location:"M.G. Road, Begusarai, Bihar",description:"Practical cookware and useful kitchen accessories."},
-    {id:"shop-7",name:"Decor House",category:"Decoration",icon:"🪴",location:"Naya Tola, Begusarai, Bihar",description:"Simple home decoration, planters and gifting accents."}
-  ],
-  products: [
-    {id:"p1",shopId:"shop-1",category:"grocery",name:"Premium Basmati Rice 5kg",price:499,mrp:599,stock:28,emoji:"🍚",image:"https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=900&q=85",images:["https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=900&q=85","https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?auto=format&fit=crop&w=900&q=85"],description:"Long-grain premium basmati rice, suitable for everyday meals and special occasions.",featured:true,latest:true},
-    {id:"p2",shopId:"shop-1",category:"grocery",name:"Fresh Cooking Oil 1L",price:149,mrp:175,stock:45,emoji:"🫗",image:"https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=900&q=85",images:["https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=900&q=85"],description:"Light and versatile cooking oil for daily kitchen use.",featured:true,latest:false},
-    {id:"p3",shopId:"shop-1",category:"grocery",name:"Organic Green Tea",price:179,mrp:220,stock:18,emoji:"🍵",image:"https://images.unsplash.com/photo-1597318181409-cf64d0b5d8a2?auto=format&fit=crop&w=900&q=85",images:["https://images.unsplash.com/photo-1597318181409-cf64d0b5d8a2?auto=format&fit=crop&w=900&q=85"],description:"Refreshing green tea leaves packed for a fresh cup every time.",featured:false,latest:true},
-    {id:"p4",shopId:"shop-2",category:"electronics",name:"Wireless Bluetooth Earbuds",price:799,mrp:1299,stock:12,emoji:"🎧",image:"https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?auto=format&fit=crop&w=900&q=85",images:["https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?auto=format&fit=crop&w=900&q=85","https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=900&q=85"],description:"Compact wireless earbuds with charging case and comfortable fit.",featured:true,latest:true},
-    {id:"p5",shopId:"shop-2",category:"electronics",name:"Smart LED Desk Lamp",price:649,mrp:899,stock:9,emoji:"💡",image:"https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=85",images:["https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=85"],description:"Modern desk lamp with adjustable brightness for work and study.",featured:true,latest:false},
-    {id:"p6",shopId:"shop-3",category:"fashion",name:"Classic Cotton T-Shirt",price:399,mrp:599,stock:24,emoji:"👕",image:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=85",images:["https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=85","https://images.unsplash.com/photo-1503341504253-dff4815485f1?auto=format&fit=crop&w=900&q=85"],description:"Soft cotton regular-fit T-shirt for casual everyday wear.",featured:true,latest:true},
-    {id:"p7",shopId:"shop-3",category:"footwear",name:"Everyday Sports Shoes",price:999,mrp:1499,stock:14,emoji:"👟",image:"https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=85",images:["https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=85"],description:"Lightweight everyday sports shoes designed for comfort.",featured:false,latest:true},
-    {id:"p8",shopId:"shop-4",category:"home",name:"Non-Stick Fry Pan",price:549,mrp:799,stock:16,emoji:"🍳",image:"https://images.unsplash.com/photo-1584990347449-ae7d4d9e0c4b?auto=format&fit=crop&w=900&q=85",images:["https://images.unsplash.com/photo-1584990347449-ae7d4d9e0c4b?auto=format&fit=crop&w=900&q=85","https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=900&q=85"],description:"Durable non-stick frying pan for quick and easy cooking.",featured:true,latest:false},
-    {id:"p9",shopId:"shop-4",category:"home",name:"Cotton Cushion Set",price:449,mrp:699,stock:20,emoji:"🛋️",image:"https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?auto=format&fit=crop&w=900&q=85",images:["https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?auto=format&fit=crop&w=900&q=85"],description:"Comfortable decorative cotton cushions for your living space.",featured:false,latest:true},
-    {id:"p10",shopId:"shop-4",category:"beauty",name:"Daily Care Face Wash",price:199,mrp:249,stock:30,emoji:"🧴",image:"https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?auto=format&fit=crop&w=900&q=85",images:["https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?auto=format&fit=crop&w=900&q=85"],description:"Gentle daily face wash for a clean and fresh feel.",featured:false,latest:true},
-    {id:"p11",shopId:"shop-5",category:"cosmetics",name:"Hydrating Face Serum",price:329,mrp:449,stock:17,emoji:"🧴",image:"https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=900&q=85",images:["https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=900&q=85","https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?auto=format&fit=crop&w=900&q=85"],description:"Lightweight hydrating serum for a fresh everyday skincare routine.",featured:true,latest:true},
-    {id:"p12",shopId:"shop-5",category:"cosmetics",name:"Moisturizing Body Lotion",price:219,mrp:299,stock:26,emoji:"🧴",image:"https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=900&q=85",images:["https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=900&q=85"],description:"Daily-use body lotion with a smooth, non-sticky feel.",featured:false,latest:true},
-    {id:"p13",shopId:"shop-6",category:"kitchen",name:"Stainless Steel Saucepan",price:699,mrp:899,stock:11,emoji:"🍲",image:"https://images.unsplash.com/photo-1584990347449-ae7d4d9e0c4b?auto=format&fit=crop&w=900&q=85",images:["https://images.unsplash.com/photo-1584990347449-ae7d4d9e0c4b?auto=format&fit=crop&w=900&q=85","https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=900&q=85"],description:"Sturdy stainless-steel saucepan for everyday cooking.",featured:true,latest:false},
-    {id:"p14",shopId:"shop-6",category:"kitchen",name:"Bamboo Kitchen Utensil Set",price:299,mrp:399,stock:22,emoji:"🥄",image:"https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=900&q=85",images:["https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=900&q=85"],description:"Reusable bamboo kitchen utensils for everyday cooking.",featured:false,latest:true},
-    {id:"p15",shopId:"shop-6",category:"plastic",name:"Airtight Storage Container Set",price:399,mrp:549,stock:19,emoji:"🫙",image:"https://images.unsplash.com/photo-1583947215259-38e31be8751f?auto=format&fit=crop&w=900&q=85",images:["https://images.unsplash.com/photo-1583947215259-38e31be8751f?auto=format&fit=crop&w=900&q=85"],description:"Stackable storage containers for pantry and kitchen organization.",featured:false,latest:true},
-    {id:"p16",shopId:"shop-7",category:"decoration",name:"Indoor Ceramic Planter",price:349,mrp:499,stock:15,emoji:"🪴",image:"https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=900&q=85",images:["https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=900&q=85","https://images.unsplash.com/photo-1497250681960-ef046c08a56e?auto=format&fit=crop&w=900&q=85"],description:"Minimal ceramic planter for desks, shelves and living spaces.",featured:true,latest:true},
-    {id:"p17",shopId:"shop-7",category:"decoration",name:"Warm Table Accent Lamp",price:799,mrp:1099,stock:8,emoji:"🛋️",image:"https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=900&q=85",images:["https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=900&q=85"],description:"Warm ambient table lamp for a cozy home corner.",featured:true,latest:false},
-    {id:"p18",shopId:"shop-2",category:"stationery",name:"Hardcover Daily Planner",price:129,mrp:169,stock:40,emoji:"📔",image:"https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=900&q=85",images:["https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=900&q=85"],description:"Compact hardcover planner for notes, tasks and daily planning.",featured:false,latest:true}
-  ],
-  cart: [
-    {productId:"p2",qty:1}
-  ],
-  wishlist:["p4"],
-  addresses:[
-    {id:"a1",label:"Home",name:"Shivam Kumar",mobile:"+91 98765 43210",line:"House No. 12, Main Road",city:"Begusarai",state:"Bihar",pincode:"851101"}
-  ],
-  orders:[
-    {
-      id:"LKR100124",date:"24 Sep 2026, 10:32 AM",status:"Out for Delivery",total:948,
-      address:"House No. 12, Main Road, Begusarai, Bihar - 851101",
-      products:[{productId:"p1",qty:1,price:499},{productId:"p2",qty:3,price:149}]
-    },
-    {
-      id:"LKR100117",date:"20 Sep 2026, 06:15 PM",status:"Delivered",total:799,
-      address:"House No. 12, Main Road, Begusarai, Bihar - 851101",
-      products:[{productId:"p4",qty:1,price:799}]
-    }
-  ]
-};
+'use strict';
 
-let state = { page:"home", search:"", selectedCategory:"all", selectedShop:null, shopCategory:"all", shopProductCategory:"all" };
-let currentProductId = null;
-let detailQty = 1;
+const PRODUCTS=[
+{id:'p1',shop:'s1',name:'Premium Basmati Rice 5kg',price:549,mrp:699,category:'Grocery',sub:'Staples',stock:18,desc:'Long-grain basmati rice for everyday family meals, pulao and biryani.',images:['https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=1000&q=85','https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?auto=format&fit=crop&w=1000&q=85']},
+{id:'p2',shop:'s1',name:'Sunflower Cooking Oil 1L',price:129,mrp:155,category:'Grocery',sub:'Cooking Essentials',stock:32,desc:'Light everyday cooking oil suitable for frying, sautéing and regular meals.',images:['https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=1000&q=85']},
+{id:'p3',shop:'s1',name:'Assam Tea Premium 250g',price:89,mrp:110,category:'Grocery',sub:'Beverages',stock:24,desc:'Aromatic Assam tea leaves with a rich, refreshing everyday cup.',images:['https://images.unsplash.com/photo-1597318181409-cf64d0b5d8a2?auto=format&fit=crop&w=1000&q=85']},
+{id:'p4',shop:'s2',name:'Wireless Earbuds with Charging Case',price:899,mrp:1299,category:'Electronics',sub:'Audio',stock:12,desc:'Compact wireless earbuds with charging case and comfortable in-ear fit.',images:['https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?auto=format&fit=crop&w=1000&q=85','https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=1000&q=85']},
+{id:'p5',shop:'s2',name:'LED Study Desk Lamp',price:499,mrp:699,category:'Electronics',sub:'Home Electronics',stock:15,desc:'Adjustable LED desk lamp for study, reading and work from home.',images:['https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=1000&q=85']},
+{id:'p6',shop:'s3',name:'Classic Cotton T-Shirt',price:299,mrp:449,category:'Fashion',sub:'Men',stock:20,desc:'Soft cotton everyday T-shirt with a comfortable regular fit.',images:['https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=1000&q=85','https://images.unsplash.com/photo-1503341504253-dff4815485f1?auto=format&fit=crop&w=1000&q=85']},
+{id:'p7',shop:'s3',name:'Casual Running Sneakers',price:999,mrp:1499,category:'Fashion',sub:'Footwear',stock:9,desc:'Lightweight casual sneakers designed for everyday walking and active use.',images:['https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1000&q=85']},
+{id:'p8',shop:'s4',name:'Non-Stick Fry Pan 24cm',price:649,mrp:899,category:'Kitchen',sub:'Cookware',stock:11,desc:'Practical non-stick fry pan for daily cooking with an easy-grip handle.',images:['https://images.unsplash.com/photo-1584990347449-ae7d4d9e0c4b?auto=format&fit=crop&w=1000&q=85','https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=1000&q=85']},
+{id:'p9',shop:'s4',name:'Glass Spice Jar Set',price:179,mrp:249,category:'Kitchen',sub:'Storage',stock:16,desc:'Neat glass jars for storing spices and keeping your kitchen organised.',images:['https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=1000&q=85']},
+{id:'p10',shop:'s5',name:'Aloe Face Wash 100ml',price:149,mrp:199,category:'Cosmetics',sub:'Face Care',stock:25,desc:'Gentle aloe-based face wash for a fresh daily cleansing routine.',images:['https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?auto=format&fit=crop&w=1000&q=85']},
+{id:'p11',shop:'s5',name:'Moisturising Body Lotion',price:219,mrp:299,category:'Cosmetics',sub:'Body Care',stock:18,desc:'Daily moisturising lotion with a smooth, non-greasy feel.',images:['https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=1000&q=85']},
+{id:'p12',shop:'s6',name:'Stackable Storage Box 12L',price:159,mrp:219,category:'Home & Plastic',sub:'Storage',stock:22,desc:'Durable stackable storage box for clothes, toys and household items.',images:['https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1000&q=85']},
+{id:'p13',shop:'s6',name:'Laundry Basket Large',price:349,mrp:449,category:'Home & Plastic',sub:'Utility',stock:13,desc:'Large lightweight laundry basket with sturdy handles for home use.',images:['https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1000&q=85']},
+{id:'p14',shop:'s7',name:'Decorative Table Vase',price:279,mrp:399,category:'Decoration',sub:'Decor',stock:8,desc:'Minimal decorative vase for tables, shelves and home corners.',images:['https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=1000&q=85']},
+{id:'p15',shop:'s7',name:'Warm White String Lights',price:199,mrp:299,category:'Decoration',sub:'Lighting',stock:30,desc:'Warm decorative string lights for festive corners and room décor.',images:['https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=1000&q=85']},
+{id:'p16',shop:'s5',name:'Matte Lip Color',price:99,mrp:149,category:'Cosmetics',sub:'Makeup',stock:19,desc:'Smooth matte lip color with an easy everyday finish.',images:['https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=1000&q=85']},
+{id:'p17',shop:'s4',name:'Silicone Kitchen Spatula',price:79,mrp:99,category:'Kitchen',sub:'Tools',stock:40,desc:'Heat-resistant silicone spatula for everyday kitchen preparation.',images:['https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=1000&q=85']},
+{id:'p18',shop:'s6',name:'Plastic Water Bottle 1L',price:69,mrp:89,category:'Home & Plastic',sub:'Utility',stock:35,desc:'Reusable lightweight bottle for home, school and everyday carrying.',images:['https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&w=1000&q=85']}
+];
+const SHOPS=[
+{id:'s1',name:'LKR Super Mart',icon:'🛒',category:'Grocery',address:'Main Market, Lakhisarai, Bihar',desc:'Everyday grocery and household essentials at practical local prices.'},
+{id:'s2',name:'Tech Point',icon:'🎧',category:'Electronics',address:'Station Road, Lakhisarai, Bihar',desc:'Useful electronics and small gadgets for home, study and work.'},
+{id:'s3',name:'Style Corner',icon:'👕',category:'Fashion',address:'Bazaar Road, Lakhisarai, Bihar',desc:'Everyday fashion, clothing and footwear for modern local shoppers.'},
+{id:'s4',name:'Kitchen House',icon:'🍳',category:'Kitchen',address:'College Road, Lakhisarai, Bihar',desc:'Cookware, kitchen tools and practical storage products.'},
+{id:'s5',name:'Glow & Care',icon:'🧴',category:'Cosmetics',address:'Main Bazaar, Lakhisarai, Bihar',desc:'Personal care and beauty essentials for daily routines.'},
+{id:'s6',name:'Home & Plastic Hub',icon:'🏠',category:'Home & Plastic',address:'Purani Bazaar, Lakhisarai, Bihar',desc:'Storage, utility and durable plastic household products.'},
+{id:'s7',name:'Decor Gallery',icon:'🪴',category:'Decoration',address:'Station Chowk, Lakhisarai, Bihar',desc:'Simple decorative products and lighting for home spaces.'}
+];
+const CATS=[
+['Grocery','🛒'],['Electronics','🎧'],['Fashion','👕'],['Kitchen','🍳'],['Cosmetics','🧴'],['Home & Plastic','🏠'],['Decoration','🪴']
+];
 
-function money(n){ return "₹" + Number(n).toLocaleString("en-IN"); }
-function product(id){ return DB.products.find(p=>p.id===id); }
-function shop(id){ return DB.shops.find(s=>s.id===id); }
-function discount(p){ return p.mrp > p.price ? Math.round((1-p.price/p.mrp)*100) : 0; }
-function imageOrEmoji(p, cls="emoji"){
-  return p.image ? `<img src="${escapeAttr(p.image)}" alt="${escapeAttr(p.name)}" loading="lazy" onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('beforeend','<span class="${cls}">${p.emoji||"🛍️"}</span>')">` : `<span class="${cls}">${p.emoji||"🛍️"}</span>`;
-}
-function escapeAttr(v){ return String(v).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-function escapeHtml(v){ return escapeAttr(v); }
+const DEFAULT_USER={name:'LKR Customer',mobile:'',wishlist:[],cart:{},orders:[],addresses:[],selectedAddress:null};
+const KEY='lkr_bazaar_user_v3';
+function loadUser(){try{return Object.assign({},DEFAULT_USER,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch{return {...DEFAULT_USER}}}
+let user=loadUser();
+let route={screen:'home',data:{}};
+let searchTerm='';
+let activeCategory='All';
+let shopFilter='All';
+let shopProductFilter='All';
+let detailImage=0;
+let toastTimer;
 
-function renderAll(){
-  renderHome(); renderCategories(); renderShops(); renderCart(); updateCartBadge();
-}
-function routeState(){
-  return {lkrBazaar:true,type:"page",page:state.page,selectedCategory:state.selectedCategory,selectedShop:state.selectedShop,shopCategory:state.shopCategory,shopProductCategory:state.shopProductCategory};
-}
-function setPageUI(page){
-  state.page=page;
-  document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
-  const el=document.getElementById(page+"Page");
-  if(el) el.classList.add("active");
-  document.querySelectorAll(".nav-btn").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
-  if(page==="cart") renderCart();
-  if(page==="categories") renderCategories();
-  if(page==="shops") renderShops();
-  if(page==="home") renderHome();
-  window.scrollTo({top:0,behavior:"smooth"});
-}
-function navigate(page, options={}){
-  closeAccount();
-  if(document.getElementById("profileOverlay").classList.contains("show")) closeProfile(null,{fromPop:true});
-  const next={...routeState(),type:"page",page};
-  if(!options.fromPop) history.pushState(next,"",location.href);
-  setPageUI(page);
-}
-function openShopDetail(id, options={}){
-  state.selectedShop=id;
-  state.shopProductCategory="all";
-  state.page="shops";
-  const next={...routeState(),type:"shopDetail",page:"shops",selectedShop:id,shopProductCategory:"all"};
-  if(!options.fromPop) history.pushState(next,"",location.href);
-  renderShops();
-  document.querySelectorAll(".nav-btn").forEach(x=>x.classList.toggle("active",x.dataset.page==="shops"));
-  window.scrollTo({top:0,behavior:"smooth"});
-}
-function restoreRoute(r){
-  if(!r || !r.lkrBazaar) return false;
-  closeAccount();
-  closeProfile(null,{fromPop:true});
-  if(document.getElementById("detail").classList.contains("show")){
-    document.getElementById("detail").classList.remove("show");
-    document.body.style.overflow="";
-  }
-  state.page=r.page||"home";
-  state.selectedCategory=r.selectedCategory||"all";
-  state.selectedShop=r.selectedShop||null;
-  state.shopCategory=r.shopCategory||"all";
-  state.shopProductCategory=r.shopProductCategory||"all";
-  setPageUI(state.page);
-  if(r.type==="shopDetail") renderShops();
-  if(r.type==="profile"){
-    openProfile({fromPop:true});
-  }
-  if(r.type==="productDetail"){
-    currentProductId=r.productId;
-    const p=product(currentProductId);
-    if(!p) return true;
-    const existing=DB.cart.find(x=>x.productId===currentProductId);
-    detailQty=existing?existing.qty:0;
-    window.detailImageIndex=0;
-    renderDetail();
-    document.getElementById("detail").classList.add("show");
-    document.body.style.overflow="hidden";
-  }
-  return true;
-}
-window.addEventListener("popstate",function(e){
-  const r=e.state;
-  if(r && r.lkrBazaar){ restoreRoute(r); return; }
-  // A non-app history entry means the app has reached its Home boundary.
-  if(document.getElementById("detail").classList.contains("show")) closeDetail();
-  if(document.getElementById("profileOverlay").classList.contains("show")) closeProfile();
-});
-function initHistory(){
-  const initial={...routeState(),type:"page",page:"home"};
-  history.replaceState(initial,"",location.href);
-}
-
-function handleSearch(value){
-  state.search=value.trim().toLowerCase();
-  if(state.search && state.page!=="home") navigate("home");
-  renderHome();
-}
-function productMatches(p){
-  if(!state.search) return true;
-  const s=state.search;
-  return (p.name+" "+p.category+" "+(shop(p.shopId)?.name||"")).toLowerCase().includes(s);
-}
+function save(){localStorage.setItem(KEY,JSON.stringify(user))}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function money(n){return '₹'+Number(n).toLocaleString('en-IN')}
+function discount(p){return p.mrp>p.price?Math.round((1-p.price/p.mrp)*100):0}
+function shopOf(id){return SHOPS.find(s=>s.id===id)}
+function productOf(id){return PRODUCTS.find(p=>p.id===id)}
+function cartEntries(){return Object.entries(user.cart).map(([id,qty])=>({p:productOf(id),qty:Number(qty)})).filter(x=>x.p&&x.qty>0)}
+function cartTotal(){return cartEntries().reduce((a,x)=>a+x.p.price*x.qty,0)}
+function cartCount(){return cartEntries().reduce((a,x)=>a+x.qty,0)}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2400)}
+function imageTag(src,alt='Product'){return `<img src="${esc(src)}" alt="${esc(alt)}" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22600%22 height=%22400%22 viewBox=%220 0 600 400%22%3E%3Crect width=%22600%22 height=%22400%22 fill=%22%23eef2f6%22/%3E%3Ctext x=%22300%22 y=%22210%22 text-anchor=%22middle%22 font-family=%22Arial%22 font-size=%2224%22 fill=%22%23687386%22%3EImage unavailable%3C/text%3E%3C/svg%3E'">`}
 function productCard(p){
-  const wished=DB.wishlist.includes(p.id);
-  const sale=discount(p);
-  return `<article class="product" onclick="openDetail('${p.id}')">
-    <div class="product-img">
-      ${imageOrEmoji(p)}
-      <button class="wish ${wished?"on":""}" onclick="event.stopPropagation();toggleWish('${p.id}')" aria-label="Wishlist">${wished?"♥":"♡"}</button>
-    </div>
-    <div class="product-info">
-      <div class="product-name">${escapeHtml(p.name)}</div>
-      <div class="shop-line">🏪 ${escapeHtml(shop(p.shopId)?.name||"LKR Shop")}</div>
-      <div class="price-row"><span class="price">${money(p.price)}</span>${p.mrp>p.price?`<span class="old">${money(p.mrp)}</span><span class="discount">${sale}% OFF</span>`:""}</div>
-      <div class="product-actions"><button class="add" style="margin-top:0" onclick="event.stopPropagation();addToCart('${p.id}')">Add to Cart</button><button class="secondary" onclick="event.stopPropagation();openDetail('${p.id}')">View Detail</button></div>
-    </div>
-  </article>`;
+ const w=user.wishlist.includes(p.id), d=discount(p);
+ return `<article class="card">
+  <div class="pimg" onclick="go('product',{id:'${p.id}'})">${imageTag(p.images[0],p.name)}<button class="wish ${w?'on':''}" onclick="event.stopPropagation();toggleWish('${p.id}')">${w?'♥':'♡'}</button></div>
+  <div class="pbody">
+   <div class="pname">${esc(p.name)}</div><div class="shopline">${esc(shopOf(p.shop)?.name||'Shop')}</div>
+   <div><span class="price">${money(p.price)}</span>${p.mrp>p.price?`<span class="old">${money(p.mrp)}</span><span class="discount">${d}% off</span>`:''}</div>
+   <div class="actions"><button class="btn primary" onclick="addCart('${p.id}')">Add to Cart</button><button class="btn secondary" onclick="go('product',{id:'${p.id}'})">View Detail</button></div>
+  </div>
+ </article>`
 }
-function section(title,items,more){
-  if(!items.length)return "";
-  return `<div class="section-head"><h3>${title}</h3>${more?`<button onclick="${more}">View all ›</button>`:""}</div><div class="product-grid">${items.map(productCard).join("")}</div>`;
-}
-function renderHome(){
-  const filtered=DB.products.filter(productMatches);
-  const featured=filtered.filter(p=>p.featured).slice(0,6);
-  const latest=filtered.filter(p=>p.latest).slice(0,6);
-  const cats=DB.categories.filter(c=>c.id!=="all").slice(0,7);
-  document.getElementById("homePage").innerHTML=`
-    ${state.search ? `<div class="section-head"><h3>Search results</h3><button onclick="clearSearch()">Clear</button></div>${filtered.length?`<div class="product-grid">${filtered.map(productCard).join("")}</div>`:`<div class="empty"><div class="big">🔎</div>No products found for “${escapeHtml(state.search)}”</div>`}` : `
-    <div class="hero">
-      <div class="hero-text"><h2>Everything you need, closer to home.</h2><p>Discover products from your favourite local shops.</p><button onclick="navigate('shops')">Explore Shops →</button></div>
-      <div class="hero-art">🛍️</div>
-    </div>
-    <div class="section-head"><h3>Shop by Category</h3><button onclick="navigate('categories')">View all ›</button></div>
-    <div class="hscroll">${cats.map(c=>`<button class="cat" onclick="selectCategory('${c.id}')"><div class="cat-icon">${c.icon}</div><span>${c.name}</span></button>`).join("")}</div>
-    ${section("Featured Products",featured,"navigate('categories')")}
-    ${section("Latest Products",latest,"navigate('categories')")}
-    `}
-  `;
-}
-function selectCategory(id){
-  state.selectedCategory=id;
-  navigate("categories");
-}
-function clearSearch(){
-  document.getElementById("globalSearch").value="";
-  state.search=""; renderHome();
-}
-function renderCategories(){
-  let items=DB.products.filter(productMatches);
-  if(state.selectedCategory!=="all") items=items.filter(p=>p.category===state.selectedCategory);
-  const catName=DB.categories.find(c=>c.id===state.selectedCategory)?.name||"All";
-  document.getElementById("categoriesPage").innerHTML=`
-    <div class="section-head"><h3>Categories</h3><span style="font-size:11px;color:var(--muted)">${DB.products.length} products</span></div>
-    <div class="filterbar">${DB.categories.map(c=>`<button class="chip ${state.selectedCategory===c.id?"active":""}" onclick="state.selectedCategory='${c.id}';renderCategories()">${c.icon} ${c.name}</button>`).join("")}</div>
-    <div class="section-head"><h3>${catName} Products</h3></div>
-    ${items.length?`<div class="product-grid">${items.map(productCard).join("")}</div>`:`<div class="empty"><div class="big">📦</div>No products in this category.</div>`}
-  `;
-}
-function renderShops(){
-  const categories=["all",...Array.from(new Set(DB.shops.map(s=>s.category)))];
-  const q=state.search;
-  if(state.selectedShop){
-    const selected=shop(state.selectedShop);
-    if(!selected){state.selectedShop=null;return renderShops();}
-    const shopProducts=DB.products.filter(p=>p.shopId===selected.id && productMatches(p));
-    const productCats=["all",...Array.from(new Set(shopProducts.map(p=>p.category)))];
-    const activeCat=state.shopProductCategory||"all";
-    const items=activeCat==="all"?shopProducts:shopProducts.filter(p=>p.category===activeCat);
-    document.getElementById("shopsPage").innerHTML=`
-      <div class="section-head"><button onclick="history.back()" style="color:var(--blue);background:none;font-weight:800">‹ All Shops</button><span></span></div>
-      <div class="shop-detail-box"><div class="shop-detail-top"><div class="shop-logo">${selected.icon}</div><div><h2>${escapeHtml(selected.name)}</h2><p>📍 ${escapeHtml(selected.location)}<br>🏷️ ${escapeHtml(selected.category)}</p></div></div><p>${escapeHtml(selected.description||"Local shop on LKR Bazaar.")}</p><div class="filterbar" style="margin-top:10px;margin-bottom:0">${productCats.map(c=>`<button class="chip ${activeCat===c?"active":""}" onclick="state.shopProductCategory='${c}';renderShops()">${c==="all"?"All Products":(DB.categories.find(x=>x.id===c)?.name||c)}</button>`).join("")}</div></div>
-      <div class="section-head"><h3>${activeCat==="all"?"All Products":(DB.categories.find(x=>x.id===activeCat)?.name||activeCat)}</h3><span style="font-size:11px;color:var(--muted)">${items.length} products</span></div>
-      ${items.length?`<div class="product-grid">${items.map(productCard).join("")}</div>`:`<div class="empty"><div class="big">📦</div>No products in this shop category.</div>`}`;
-    return;
-  }
-  const shops=DB.shops.filter(s=>(state.shopCategory||"all")==="all"||(state.shopCategory||"all")===s.category).filter(s=>!q||(s.name+" "+s.category+" "+s.location).toLowerCase().includes(q));
-  document.getElementById("shopsPage").innerHTML=`
-    <div class="section-head"><h3>Shops</h3><span style="font-size:11px;color:var(--muted)">${shops.length} shops</span></div>
-    <div class="filterbar">${categories.map(c=>`<button class="chip ${(state.shopCategory||"all")==c?"active":""}" onclick="state.shopCategory='${c}';renderShops()">${c==="all"?"All":escapeHtml(c)}</button>`).join("")}</div>
-    <div class="list">${shops.map(s=>{const count=DB.products.filter(p=>p.shopId===s.id).length;return `<button class="shop-card" onclick="openShopDetail('${s.id}')"><div class="shop-logo">${s.icon}</div><div style="text-align:left;min-width:0"><h4>${escapeHtml(s.name)}</h4><p>${escapeHtml(s.location)}</p><p>${escapeHtml(s.description||"")}</p><div style="margin-top:5px"><span class="chip" style="padding:4px 7px;font-size:9px">${escapeHtml(s.category)}</span> <span class="chip" style="padding:4px 7px;font-size:9px">${count} products</span></div></div><span class="arrow">›</span></button>`}).join("")}</div>`;
-}
-function cartLines(){
-  return DB.cart.map(c=>({line:c,p:product(c.productId)})).filter(x=>x.p);
-}
-function cartCount(){return DB.cart.reduce((n,c)=>n+c.qty,0)}
-function cartTotal(){return cartLines().reduce((n,x)=>n+x.p.price*x.line.qty,0)}
-function updateCartBadge(){
-  const b=document.getElementById("cartBadge"); const n=cartCount();
-  b.textContent=n;b.style.display=n?"block":"none";
-}
-function addToCart(id,qty=1){
-  const p=product(id); if(!p)return;
-  const line=DB.cart.find(c=>c.productId===id);
-  const newQty=(line?line.qty:0)+qty;
-  if(newQty>p.stock){toast("Only "+p.stock+" units available");return}
-  if(line)line.qty=newQty; else DB.cart.push({productId:id,qty});
-  updateCartBadge(); renderCart(); toast("Added to cart");
-}
-function changeCartQty(id,delta){
-  const line=DB.cart.find(c=>c.productId===id); const p=product(id); if(!line)return;
-  line.qty+=delta;
-  if(line.qty>p.stock)line.qty=p.stock;
-  if(line.qty<=0)DB.cart=DB.cart.filter(c=>c.productId!==id);
-  renderCart(); updateCartBadge();
-}
-function removeCart(id){
-  DB.cart=DB.cart.filter(c=>c.productId!==id);renderCart();updateCartBadge();toast("Product removed");
-}
-function renderCart(){
-  const lines=cartLines();
-  document.getElementById("cartPage").innerHTML=`
-    <div class="section-head"><h3>My Cart</h3><span style="font-size:11px;color:var(--muted)">${cartCount()} items</span></div>
-    ${lines.length?`
-      <div class="list">${lines.map(x=>`<div class="cart-item">
-        <div class="cart-thumb">${imageOrEmoji(x.p)}</div>
-        <div class="cart-main"><h4>${escapeHtml(x.p.name)}</h4><p>${escapeHtml(shop(x.p.shopId)?.name||"LKR Shop")}</p>
-          <div class="cart-bottom"><strong>${money(x.p.price*x.line.qty)}</strong>
-            <div class="mini-qty"><button onclick="changeCartQty('${x.p.id}',-1)">−</button><b>${x.line.qty}</b><button onclick="changeCartQty('${x.p.id}',1)">+</button></div>
-          </div>
-        </div><button class="remove" onclick="removeCart('${x.p.id}')">Remove</button>
-      </div>`).join("")}</div>
-      <div class="summary">
-        <div class="sum-row"><span>Total quantity</span><strong>${cartCount()}</strong></div>
-        <div class="sum-row"><span>Subtotal</span><strong>${money(cartTotal())}</strong></div>
-        <div class="sum-row"><span>Delivery</span><strong>Free</strong></div>
-        <div class="sum-row total"><span>Total Amount</span><strong>${money(cartTotal())}</strong></div>
-        ${cartTotal()<100?`<div style="margin:10px 0;padding:10px;border-radius:10px;background:#fff4e5;color:#b85b00;font-size:11px;font-weight:800">Order करने के लिए कम से कम ₹100 की खरीदारी करें।</div>`:""}
-        <button class="checkout" onclick="checkout()">Proceed to Checkout →</button>
-      </div>
-    `:`<div class="empty"><div class="big">🛒</div><h3>Your cart is empty</h3><p>Add products from local shops to see them here.</p><button class="primary" onclick="navigate('home')">Continue Shopping</button></div>`}
-  `;
-}
-function openDetail(id, options={}){
-  const p=product(id); if(!p)return;
-  currentProductId=id;
-  const existing=DB.cart.find(x=>x.productId===id);
-  detailQty=existing?existing.qty:0;
-  window.detailImageIndex=0;
-  renderDetail();
-  document.getElementById("detail").classList.add("show");
-  document.body.style.overflow="hidden";
-  if(!options.fromPop){
-    history.pushState({...routeState(),type:"productDetail",page:state.page,productId:id},"",location.href);
-  }
-}
-function renderDetail(){
-  const p=product(currentProductId); if(!p)return;
-  const s=shop(p.shopId);
-  const images=p.images&&p.images.length?p.images:[p.image];
-  const idx=Math.max(0,Math.min(window.detailImageIndex||0,images.length-1));
-  const wished=DB.wishlist.includes(p.id);
-  const qty=Math.max(0,Math.min(p.stock,detailQty));
-  const buy=p.price>=100 && qty>0 && p.stock>0;
-  document.getElementById("detailContent").innerHTML=`
-    <div class="detail-gallery"><div class="detail-main-photo">${images[idx]?`<img src="${escapeAttr(images[idx])}" alt="${escapeAttr(p.name)}" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=\"emoji\">${p.emoji||"🛍️"}</span>'">`:`<span class="emoji">${p.emoji||"🛍️"}</span>`}</div>
-    <div class="detail-thumbs">${images.map((u,i)=>`<button class="detail-thumb ${i===idx?"active":""}" onclick="window.detailImageIndex=${i};renderDetail()"><img src="${escapeAttr(u)}" alt="Photo ${i+1}" onerror="this.style.opacity=.2"></button>`).join("")}</div></div>
-    <div class="detail-body"><h2>${escapeHtml(p.name)}</h2><div class="detail-shop">🏪 <b>${escapeHtml(s?.name||"LKR Shop")}</b> • ${escapeHtml(s?.category||"")}<br>📍 ${escapeHtml(s?.location||"Local shop")}<br>Category: ${escapeHtml(DB.categories.find(c=>c.id===p.category)?.name||p.category)}</div>
-    <div><span class="detail-price">${money(p.price)}</span>${p.mrp>p.price?`<span class="detail-old">${money(p.mrp)}</span> <span class="discount">${discount(p)}% OFF</span>`:""}</div>
-    <div class="stock">${p.stock>0?"✓ "+p.stock+" units available":"Out of stock"}</div><p class="detail-desc">${escapeHtml(p.description)}</p>
-    <div class="shop-detail-box"><b style="font-size:12px">About ${escapeHtml(s?.name||"this shop")}</b><p>${escapeHtml(s?.description||"Local shop on LKR Bazaar.")}</p></div>
-    <div class="qty"><b>Quantity</b>${qty>0?`<button onclick="detailChange(-1)">−</button><strong>${qty}</strong>`:"<strong>0</strong>"}<button onclick="detailChange(1)">+</button></div>
-    <div class="action-row"><button class="cart-action" ${qty>0&&p.stock>0?"":"disabled style=\"opacity:.45\""} onclick="addDetailToCart()">Add to Cart</button>${p.price>=100?`<button class="buy" ${buy?"":"disabled style=\"opacity:.45\""} onclick="buyNow()">Buy Now</button>`:""}</div></div>`;
-  document.querySelector("#detail .detail-top .icon-btn").className="detail-wish "+(wished?"on":"");
-  document.querySelector("#detail .detail-top .icon-btn").textContent=wished?"♥":"♡";
-}
-function closeDetail(options={}){
-  document.getElementById("detail").classList.remove("show");
-  document.body.style.overflow="";
-  if(!options.fromPop && history.state && history.state.lkrBazaar && history.state.type==="productDetail") history.back();
-}
-function detailChange(d){
-  const p=product(currentProductId); if(!p)return;
-  detailQty=Math.max(0,Math.min(p.stock,detailQty+d));
-  renderDetail();
-}
-function addDetailToCart(){if(detailQty<=0){toast("Select quantity first");return;}addToCart(currentProductId,detailQty);closeDetail();}
-function buyNow(){const p=product(currentProductId);if(!p||p.price<100||detailQty<=0){toast("Buy Now is available for products ₹100 or above");return;}addToCart(currentProductId,detailQty);closeDetail({fromPop:true});navigate("cart");toast("Ready for checkout");}
+function renderProducts(list){return list.length?`<div class="products">${list.map(productCard).join('')}</div>`:`<div class="empty"><b>No products found</b>Try another category or search term.</div>`}
 
-function toggleWish(id){
-  if(DB.wishlist.includes(id)) DB.wishlist=DB.wishlist.filter(x=>x!==id);
-  else DB.wishlist.push(id);
-  renderAll();
-  if(currentProductId===id && document.getElementById("detail").classList.contains("show"))renderDetail();
-  toast(DB.wishlist.includes(id)?"Added to wishlist":"Removed from wishlist");
+function home(){
+ const q=searchTerm.trim().toLowerCase();
+ const list=PRODUCTS.filter(p=>(!q||(`${p.name} ${p.category} ${p.sub} ${shopOf(p.shop)?.name}`.toLowerCase().includes(q))));
+ return `<main>
+  <section class="hero"><div><h1>Shop local. Shop smart.</h1><p>Welcome to <strong>LKR Bazaar</strong> — useful products from local shops.</p></div><div style="font-size:46px">🛍️</div></section>
+  <section class="section" style="margin-top:16px"><div class="sectionhead"><h2>Categories</h2><button class="link" onclick="go('categories')">View all</button></div><div class="catgrid">${CATS.slice(0,8).map(c=>`<button class="cat" onclick="go('category',{category:'${esc(c[0])}'})"><div class="ico">${c[1]}</div><span>${esc(c[0])}</span></button>`).join('')}</div></section>
+  <section class="section"><div class="sectionhead"><h2>Featured Products</h2></div>${renderProducts(PRODUCTS.slice(0,6))}</section>
+  <section class="section"><div class="sectionhead"><h2>Latest Products</h2></div>${renderProducts(PRODUCTS.slice(-6).reverse())}</section>
+  <section class="section"><div class="sectionhead"><h2>${q?'Search Results':'All Products'}</h2><span style="font-size:11px;color:var(--muted)">${list.length} products</span></div>${renderProducts(list)}</section>
+ </main>`
 }
-function showNotifications(){
-  const modal=document.getElementById("accountModal");
-  document.getElementById("accountTitle").textContent="Notifications";
-  document.getElementById("accountContent").innerHTML=`<div class="list">${[
-    ["Order update","Your order #LKR100124 is out for delivery.","🚚"],
-    ["Special offer","Fresh local products are available at discounted prices.","🏷️"],
-    ["Welcome","Discover products from shops around you on LKR Bazaar.","🛍️"]
-  ].map(n=>`<div class="notification"><div class="notification-icon">${n[2]}</div><div><h4>${n[0]}</h4><p>${n[1]}</p></div></div>`).join("")}</div>`;
-  modal.classList.add("show");
-  const b=document.getElementById("notificationBadge");if(b)b.style.display="none";
+function categories(){
+ return `<main><div class="pagehead"><button class="back" onclick="back()">‹</button><h1>Categories</h1></div><div class="catgrid">${CATS.map(c=>`<button class="cat" onclick="go('category',{category:'${esc(c[0])}'})"><div class="ico">${c[1]}</div><span>${esc(c[0])}</span></button>`).join('')}</div></main>`
 }
-function openProfile(options={}){
-  document.querySelectorAll(".nav-btn").forEach(x=>x.classList.toggle("active",x.dataset.page==="profile"));
-  document.getElementById("profileOverlay").classList.add("show");
-  if(!options.fromPop) history.pushState({...routeState(),type:"profile",page:state.page},"",location.href);
+function category(){
+ const list=PRODUCTS.filter(p=>p.category===route.data.category);
+ return `<main><div class="pagehead"><button class="back" onclick="back()">‹</button><div><h1>${esc(route.data.category)}</h1><small style="color:var(--muted)">${list.length} products</small></div></div>${renderProducts(list)}</main>`
 }
-function closeProfile(e,options={}){
-  if(e && e.target!==document.getElementById("profileOverlay")) return;
-  document.getElementById("profileOverlay").classList.remove("show");
-  if(!options.fromPop && history.state && history.state.lkrBazaar && history.state.type==="profile") history.back();
+function shops(){
+ const cats=['All',...new Set(SHOPS.map(s=>s.category))];
+ const list=SHOPS.filter(s=>shopFilter==='All'||s.category===shopFilter);
+ return `<main><div class="pagehead"><button class="back" onclick="back()">‹</button><h1>Shops</h1></div>
+ <div class="chips" style="margin-bottom:14px">${cats.map(c=>`<button class="chip ${shopFilter===c?'active':''}" onclick="setShopFilter('${esc(c)}')">${esc(c)}</button>`).join('')}</div>
+ <div class="list">${list.map(s=>`<article class="shopcard" onclick="go('shop',{id:'${s.id}'})"><div class="shoplogo">${s.icon}</div><div class="shopinfo"><h3>${esc(s.name)}</h3><p>${esc(s.address)}</p><p>${esc(s.category)} · ${esc(s.desc)}</p><span class="count">${PRODUCTS.filter(p=>p.shop===s.id).length} products</span></div><b>›</b></article>`).join('')}</div></main>`
 }
-function showAccount(type){
-  closeProfile();
-  const titles={profile:"Edit Profile",orders:"My Orders",wishlist:"Wishlist / Favorites",addresses:"Delivery Addresses",notifications:"Notifications"};
-  document.getElementById("accountTitle").textContent=titles[type];
-  document.getElementById("accountContent").innerHTML=accountTemplate(type);
-  document.getElementById("accountModal").classList.add("show");
+function shop(){
+ const s=shopOf(route.data.id);if(!s)return notFound();
+ const products=PRODUCTS.filter(p=>p.shop===s.id);
+ const cats=['All',...new Set(products.map(p=>p.sub))];
+ const list=products.filter(p=>shopProductFilter==='All'||p.sub===shopProductFilter);
+ return `<main><div class="pagehead"><button class="back" onclick="back()">‹</button><h1>Shop Detail</h1></div>
+ <section class="shophero"><div class="shopheroTop"><div class="shoplogo">${s.icon}</div><div><h1>${esc(s.name)}</h1><p>${esc(s.address)}</p><p>${esc(s.category)} · ${esc(s.desc)}</p></div></div><div style="margin-top:11px;font-size:12px;color:var(--blue);font-weight:800">${products.length} total products</div></section>
+ <section class="section" style="margin-top:15px"><div class="sectionhead"><h2>Shop Categories</h2></div><div class="chips">${cats.map(c=>`<button class="chip ${shopProductFilter===c?'active':''}" onclick="setShopProductFilter('${esc(c)}')">${esc(c)}</button>`).join('')}</div></section>
+ <section class="section"><div class="sectionhead"><h2>Products</h2></div>${renderProducts(list)}</section></main>`
 }
-function closeAccount(){document.getElementById("accountModal").classList.remove("show");}
-function accountTemplate(type){
-  if(type==="profile")return `<div class="form">
-    <div class="profile-hero"><div class="avatar">${(DB.user.fullName||"U")[0]}</div><div><h2>${escapeHtml(DB.user.fullName)}</h2><p>${escapeHtml(DB.user.mobile)}</p></div></div>
-    <div class="field"><label>Full Name</label><input id="editName" value="${escapeAttr(DB.user.fullName)}"></div>
-    <div class="field"><label>Mobile Number</label><input id="editMobile" value="${escapeAttr(DB.user.mobile)}"></div>
-    <button class="primary" onclick="saveProfile()">Save Changes</button></div>`;
-  if(type==="orders")return `<div class="list">${DB.orders.map(o=>`<div class="order-card"><div style="display:flex;justify-content:space-between;gap:8px"><div><h4>Order #${o.id}</h4><div class="order-meta">${o.date}</div></div><span class="status">${o.status}</span></div><div class="order-products">${o.products.map(x=>`<div class="order-product"><span>${escapeHtml(product(x.productId)?.name||"Product")} × ${x.qty}</span><strong>${money(x.price*x.qty)}</strong></div>`).join("")}</div><div style="font-size:11px;color:var(--muted);margin-top:8px">📍 ${escapeHtml(o.address)}</div><div style="display:flex;justify-content:space-between;margin-top:10px;font-weight:850;font-size:13px"><span>Total</span><span>${money(o.total)}</span></div></div>`).join("")}</div>`;
-  if(type==="wishlist"){
-    const items=DB.products.filter(p=>DB.wishlist.includes(p.id));
-    return items.length?`<div class="product-grid">${items.map(productCard).join("")}</div>`:`<div class="empty"><div class="big">❤️</div>Your wishlist is empty.</div>`;
-  }
-  if(type==="addresses")return `<div class="list">${DB.addresses.map(a=>`<div class="address-card"><h4>${escapeHtml(a.label)}</h4><p><b>${escapeHtml(a.name)}</b> • ${escapeHtml(a.mobile)}<br>${escapeHtml(a.line)}, ${escapeHtml(a.city)}, ${escapeHtml(a.state)} - ${escapeHtml(a.pincode)}</p><div class="card-actions"><button class="secondary" onclick="editAddress('${a.id}')">Edit</button><button style="background:#fff0f0;color:var(--red)" onclick="deleteAddress('${a.id}')">Delete</button></div></div>`).join("")}<button class="primary" onclick="addAddress()">+ Add New Address</button></div>`;
-  return `<div class="info-card"><div style="font-size:38px">🔔</div><h3 style="margin:8px 0">Notifications</h3><p style="font-size:12px;color:var(--muted);line-height:1.6">Order updates, offers and important account notifications will appear here.</p><div class="info-card" style="margin-top:10px;background:#f7fbff"><b style="font-size:12px">Demo notification</b><p style="font-size:11px;color:var(--muted);margin:5px 0 0">Your order LKR100124 is out for delivery.</p></div></div>`;
+function product(){
+ const p=productOf(route.data.id);if(!p)return notFound();const s=shopOf(p.shop),d=discount(p),w=user.wishlist.includes(p.id),qty=Number(user.cart[p.id]||0);
+ return `<main><div class="pagehead"><button class="back" onclick="back()">‹</button><h1>Product Detail</h1></div>
+ <section class="detailHero"><div class="detailMain">${imageTag(p.images[detailImage]||p.images[0],p.name)}</div><div class="thumbs">${p.images.map((im,i)=>`<button class="thumb ${i===detailImage?'active':''}" onclick="detailImage=${i};render()">${imageTag(im,p.name+' photo')}</button>`).join('')}</div></section>
+ <section class="detailbox"><div style="display:flex;justify-content:space-between;gap:10px"><h1>${esc(p.name)}</h1><button class="wish ${w?'on':''}" onclick="toggleWish('${p.id}')">${w?'♥':'♡'}</button></div>
+ <div><span class="price" style="font-size:22px">${money(p.price)}</span>${p.mrp>p.price?` <span class="old">${money(p.mrp)}</span> <span class="discount">${d}% off</span>`:''}</div>
+ <p class="desc">${esc(p.desc)}</p>
+ <div class="meta"><div>Category<strong>${esc(p.category)} · ${esc(p.sub)}</strong></div><div>Available Stock<strong>${p.stock}</strong></div></div>
+ <div style="margin-top:13px;font-size:12px;color:var(--muted)">Sold by</div><button class="link" style="padding:5px 0;font-size:14px" onclick="go('shop',{id:'${p.shop}'})">${esc(s?.name||'Shop')}</button>
+ </section>
+ <section class="detailbox"><div style="display:flex;justify-content:space-between;align-items:center"><b>Quantity</b><div class="qty">${qty>0?`<button onclick="changeQty('${p.id}',-1)">−</button>`:''}<strong>${qty}</strong><button onclick="changeQty('${p.id}',1)">+</button></div></div>
+ <div class="purchase"><button class="btn primary" ${qty<=0?'disabled':''} onclick="addCart('${p.id}',false)">Add to Cart</button>${p.price>=100?`<button class="btn orange" ${qty<=0?'disabled':''} onclick="buyNow('${p.id}')">Buy Now</button>`:''}</div>
+ <p style="font-size:10px;color:var(--muted);margin:9px 0 0">Buy Now is available only for products priced ₹100 or above.</p>
+ </section></main>`
 }
-function saveProfile(){
-  DB.user.fullName=document.getElementById("editName").value.trim()||DB.user.fullName;
-  DB.user.mobile=document.getElementById("editMobile").value.trim()||DB.user.mobile;
-  document.getElementById("drawerName").textContent=DB.user.fullName;
-  document.getElementById("drawerMobile").textContent=DB.user.mobile;
-  document.getElementById("drawerAvatar").textContent=DB.user.fullName[0]||"U";
-  closeAccount();toast("Profile updated");
+function cart(){
+ const entries=cartEntries(),total=cartTotal();
+ return `<main><div class="pagehead"><button class="back" onclick="back()">‹</button><h1>Cart</h1></div>
+ ${entries.length?`<div class="list">${entries.map(x=>`<article class="cartitem"><div class="cartimg" onclick="go('product',{id:'${x.p.id}'})">${imageTag(x.p.images[0],x.p.name)}</div><div class="cartbody"><h3 onclick="go('product',{id:'${x.p.id}'})">${esc(x.p.name)}</h3><div class="price">${money(x.p.price)}</div><div class="cartbottom"><div class="qty">${x.qty>0?`<button onclick="changeQty('${x.p.id}',-1)">−</button>`:''}<strong>${x.qty}</strong><button onclick="changeQty('${x.p.id}',1)">+</button></div><b>${money(x.p.price*x.qty)}</b><button class="btn danger" onclick="removeCart('${x.p.id}')">Remove</button></div></div></article>`).join('')}</div>
+ <div class="summary"><div class="row"><span>Total products</span><b>${cartCount()}</b></div><div class="row"><span>Cart total</span><b>${money(total)}</b></div><div class="row grand"><span>Grand Total</span><b>${money(total)}</b></div><button class="btn orange full" style="margin-top:10px" onclick="checkout()">Checkout</button></div>`:
+ `<div class="empty"><div style="font-size:42px">🛒</div><b>Your cart is empty</b><span>Add products to start shopping.</span><button class="btn primary" style="margin-top:15px" onclick="go('home')">Continue Shopping</button></div>`}
+ </main>`
 }
-function addAddress(){
-  const label=prompt("Address label (Home/Work):","Work"); if(!label)return;
-  const line=prompt("Address line:","Near Main Road");if(!line)return;
-  const city=prompt("City:","Begusarai");if(!city)return;
-  const pin=prompt("Pincode:","851101");if(!pin)return;
-  DB.addresses.push({id:"a"+Date.now(),label,name:DB.user.fullName,mobile:DB.user.mobile,line,city,state:"Bihar",pincode:pin});
-  showAccount("addresses");toast("Address added");
+function profile(){
+ const initials=(user.name||'L').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase();
+ return `<main><section class="profileHero"><div class="avatar">${esc(initials||'L')}</div><div><h2>${esc(user.name||'LKR Customer')}</h2><p>${esc(user.mobile||'Mobile number not added')}</p></div></section>
+ <div class="menu">
+ ${menu('👤','Edit Profile','Update your name and mobile','profile-edit')}
+ ${menu('📦','My Orders',`${user.orders.length} saved order(s)`,'orders')}
+ ${menu('♥','Wishlist / Favorites',`${user.wishlist.length} saved product(s)`,'wishlist')}
+ ${menu('📍','Delivery Addresses',`${user.addresses.length} saved address(es)`,'addresses')}
+ ${menu('🔔','Notifications','View all notifications','notifications')}
+ ${menu('🚪','Logout','Return to account screen','logout')}
+ </div></main>`
 }
-function editAddress(id){
-  const a=DB.addresses.find(x=>x.id===id);if(!a)return;
-  const line=prompt("Update address:",a.line);if(line!==null)a.line=line;
-  const pin=prompt("Update pincode:",a.pincode);if(pin!==null)a.pincode=pin;
-  showAccount("addresses");toast("Address updated");
+function menu(i,t,s,a){return `<button class="menuitem" onclick="profileAction('${a}')"><span class="menuico">${i}</span><span><strong>${t}</strong><small>${s}</small></span><span class="arrow">›</span></button>`}
+function profileEdit(){
+ return `<main><div class="pagehead"><button class="back" onclick="back()">‹</button><h1>Edit Profile</h1></div><form class="form" onsubmit="saveProfile(event)"><div class="field"><label>Full Name</label><input id="editName" required value="${esc(user.name)}"></div><div class="field"><label>Mobile Number</label><input id="editMobile" inputmode="tel" value="${esc(user.mobile)}"></div><button class="btn primary full">Save Changes</button></form></main>`
 }
-function deleteAddress(id){
-  if(DB.addresses.length<=1){toast("Keep at least one delivery address");return}
-  DB.addresses=DB.addresses.filter(a=>a.id!==id);showAccount("addresses");toast("Address deleted");
+function orders(){
+ return `<main><div class="pagehead"><button class="back" onclick="back()">‹</button><h1>My Orders</h1></div>${user.orders.length?`<div>${user.orders.map(o=>`<article class="order"><div style="display:flex;justify-content:space-between;gap:8px"><h3>${esc(o.id)}</h3><span class="status">${esc(o.status)}</span></div><p>${esc(o.date)} · ${esc(o.time)}</p><div class="orderproducts">${o.items.map(i=>`<div class="row"><span>${esc(i.name)} × ${i.qty}</span><b>${money(i.price*i.qty)}</b></div>`).join('')}</div><div class="row grand"><span>Total</span><b>${money(o.total)}</b></div><p>Delivery: ${esc(o.address||'No address selected')}</p></article>`).join('')}</div>`:`<div class="empty"><b>No Orders Yet</b>Your completed orders will appear here.</div>`}</main>`
+}
+function wishlist(){
+ const list=user.wishlist.map(productOf).filter(Boolean);
+ return `<main><div class="pagehead"><button class="back" onclick="back()">‹</button><h1>Wishlist / Favorites</h1></div>${renderProducts(list)}</main>`
+}
+function addresses(){
+ return `<main><div class="pagehead"><button class="back" onclick="back()">‹</button><h1>Delivery Addresses</h1></div><button class="btn primary full" style="margin-bottom:11px" onclick="addressForm()">＋ Add Address</button>${user.addresses.length?user.addresses.map(a=>`<article class="address ${user.selectedAddress===a.id?'selected':''}"><h3>${esc(a.name)} ${user.selectedAddress===a.id?'· Selected':''}</h3><p>${esc(a.line1)}<br>${esc(a.city)}, ${esc(a.state)} - ${esc(a.pin)}<br>Mobile: ${esc(a.mobile)}</p><div class="actions"><button class="btn secondary" onclick="selectAddress('${a.id}')">${user.selectedAddress===a.id?'Selected':'Use this'}</button><button class="btn secondary" onclick="addressForm('${a.id}')">Edit</button><button class="btn danger" onclick="deleteAddress('${a.id}')">Delete</button></div></article>`).join(''):`<div class="empty"><b>No saved addresses</b>Add an address for faster checkout.</div>`}</main>`
+}
+function notifications(){
+ const ns=[['Order updates','Your LKR Bazaar order status will appear here.'],['New products','New local products have been added to the demo catalogue.'],['Offers','Check product cards for current demo discounts.']];
+ return `<main><div class="pagehead"><button class="back" onclick="back()">‹</button><h1>Notifications</h1></div>${ns.map(n=>`<article class="notice"><strong>🔔 ${n[0]}</strong><p>${n[1]}</p></article>`).join('')}</main>`
+}
+function login(){
+ return `<main style="padding-top:40px"><div class="hero"><div><h1>Welcome to LKR Bazaar</h1><p>Sign in to continue shopping locally.</p></div><div style="font-size:45px">🛍️</div></div><form class="form" style="margin-top:14px" onsubmit="loginSubmit(event)"><div class="field"><label>Full Name</label><input id="loginName" required placeholder="Your full name" value="${esc(user.name==='LKR Customer'?'':user.name)}"></div><div class="field"><label>Mobile Number</label><input id="loginMobile" inputmode="tel" placeholder="Mobile number" value="${esc(user.mobile)}"></div><button class="btn primary full">Enter LKR Bazaar</button></form></main>`
+}
+function notFound(){return `<main><div class="empty"><b>Page not found</b><button class="btn primary" onclick="go('home')">Go Home</button></div></main>`}
+
+function appPage(){
+ if(route.screen==='login')return login();
+ let content=route.screen==='home'?home():route.screen==='categories'?categories():route.screen==='category'?category():route.screen==='shops'?shops():route.screen==='shop'?shop():route.screen==='product'?product():route.screen==='cart'?cart():route.screen==='profile'?profile():route.screen==='profile-edit'?profileEdit():route.screen==='orders'?orders():route.screen==='wishlist'?wishlist():route.screen==='addresses'?addresses():route.screen==='notifications'?notifications():notFound();
+ const active=['home','categories','shops','cart','profile'].includes(route.screen)?route.screen:(route.screen==='category'?'categories':(route.screen==='shop'?'shops':(route.screen==='product'?(route.data.from||'home'):(['orders','wishlist','addresses','notifications','profile-edit'].includes(route.screen)?'profile':route.screen))));
+ return `<div class="shell"><header class="top"><div class="brandrow"><div class="brand">LKR Bazaar<small>LOCAL SHOPPING, MADE SIMPLE</small></div><button class="iconbtn" onclick="go('notifications')">🔔<span class="badge">${user.orders.length?'1':'3'}</span></button></div><div class="searchrow"><div class="search">🔎<input id="searchInput" value="${esc(searchTerm)}" oninput="onSearch(this.value)" placeholder="Search products, shops or categories"></div></div></header>${content}<nav class="bottom">${nav('home','⌂','Home',active)}${nav('categories','▦','Categories',active)}${nav('shops','▣','Shops',active)}${nav('cart','🛒','Cart',active,cartCount())}${nav('profile','◉','Profile',active)}</nav></div>`
+}
+function nav(s,ico,label,active,badge=0){return `<button class="nav ${active===s?'active':''}" onclick="go('${s}')"><span>${ico}${badge?`<sup style="background:var(--orange);color:#fff;border-radius:99px;padding:1px 4px;font-size:8px">${badge}</sup>`:''}</span>${label}</button>`}
+
+function render(){document.getElementById('app').innerHTML=appPage();window.scrollTo(0,0)}
+function go(screen,data={},replace=false){
+ const prev=route.screen;
+ route={screen,data};
+ if(screen==='product'&&prev!=='product')detailImage=0;
+ if(screen==='shop'&&prev!=='shop')shopProductFilter='All';
+ if(screen!=='shop'&&prev!=='shop'){}
+ const state={route,searchTerm,shopFilter,shopProductFilter};
+ if(replace)history.replaceState(state,'');else history.pushState(state,'');
+ render();
+}
+function back(){if(history.length>1)history.back();else go('home',{},true)}
+window.addEventListener('popstate',e=>{
+ const s=e.state;
+ if(s&&s.route){route=s.route;searchTerm=s.searchTerm||'';shopFilter=s.shopFilter||'All';shopProductFilter=s.shopProductFilter||'All';render()}
+ else {route={screen:'home',data:{}};render()}
+});
+function setShopFilter(v){shopFilter=v;go('shops',{},true)}
+function setShopProductFilter(v){shopProductFilter=v;go('shop',route.data,true)}
+function onSearch(v){searchTerm=v;render()}
+function addCart(id,show=true){
+ const p=productOf(id);if(!p)return;
+ const next=Math.min(Number(user.cart[id]||0)+1,p.stock);user.cart[id]=next;save();render();if(show)toast(`${p.name} added to cart`);
+}
+function changeQty(id,d){
+ const p=productOf(id);if(!p)return;
+ const next=Math.max(0,Math.min(p.stock,Number(user.cart[id]||0)+d));
+ if(next===0)delete user.cart[id];else user.cart[id]=next;save();render();
+}
+function removeCart(id){delete user.cart[id];save();render();toast('Product removed from cart')}
+function toggleWish(id){const i=user.wishlist.indexOf(id);if(i>=0){user.wishlist.splice(i,1);toast('Removed from wishlist')}else{user.wishlist.push(id);toast('Added to wishlist')}save();render()}
+function buyNow(id){
+ const p=productOf(id);if(!p||p.price<100){toast('Buy Now is available only for products priced ₹100 or above.');return}
+ if(!Number(user.cart[id])){user.cart[id]=1;save()}
+ checkout()
 }
 function checkout(){
-  if(!DB.cart.length){toast("Your cart is empty");return}
-  if(cartTotal()<100){toast("Order करने के लिए कम से कम ₹100 की खरीदारी करें।");return}
-  if(!DB.addresses.length){toast("Please add a delivery address");return}
-  const order={
-    id:"LKR"+Math.floor(100000+Math.random()*899999),
-    date:new Date().toLocaleString("en-IN",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}),
-    status:"Order Placed",total:cartTotal(),
-    address:`${DB.addresses[0].line}, ${DB.addresses[0].city}, ${DB.addresses[0].state} - ${DB.addresses[0].pincode}`,
-    products:DB.cart.map(c=>({productId:c.productId,qty:c.qty,price:product(c.productId).price}))
-  };
-  DB.orders.unshift(order); DB.cart=[]; renderAll(); toast("Order placed successfully • #"+order.id);
+ const total=cartTotal();if(total<100){toast('Order करने के लिए कम से कम ₹100 की खरीदारी करें।');return}
+ if(!user.addresses.length){toast('Please add a delivery address first.');go('addresses');return}
+ if(!user.selectedAddress)user.selectedAddress=user.addresses[0].id;
+ const a=user.addresses.find(x=>x.id===user.selectedAddress);
+ document.getElementById('modalContent').innerHTML=`<div class="sheethead"><h2 style="margin:0">Confirm Order</h2><button class="close" onclick="closeModal()">✕</button></div><div class="summary" style="margin-top:14px"><div class="row"><span>Products</span><b>${cartCount()}</b></div><div class="row grand"><span>Total</span><b>${money(total)}</b></div></div><div class="address" style="margin-top:10px"><h3>Delivery Address</h3><p>${esc(a?.name||'')}<br>${esc(a?.line1||'')}, ${esc(a?.city||'')} - ${esc(a?.pin||'')}<br>Mobile: ${esc(a?.mobile||'')}</p><button class="btn secondary" onclick="closeModal();go('addresses')">Change Address</button></div><button class="btn orange full" style="margin-top:12px" onclick="placeOrder()">Place Order</button>`;
+ document.getElementById('modal').classList.add('show');
 }
-function demoLogout(){closeProfile();toast("Demo logout — connect Firebase Auth later");}
-
-/* Initial render */
-document.getElementById("drawerName").textContent=DB.user.fullName;
-document.getElementById("drawerMobile").textContent=DB.user.mobile;
-document.getElementById("drawerAvatar").textContent=DB.user.fullName[0]||"U";
-initHistory();
-renderAll();
-
-let toastTimer;
-function toast(message){
-  const el=document.getElementById("toast");el.textContent=message;el.classList.add("show");
-  clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),2200);
+function placeOrder(){
+ const total=cartTotal();if(total<100){closeModal();toast('Order करने के लिए कम से कम ₹100 की खरीदारी करें।');return}
+ if(!user.addresses.length){closeModal();go('addresses');return}
+ const now=new Date(),items=cartEntries().map(x=>({id:x.p.id,name:x.p.name,qty:x.qty,price:x.p.price}));
+ const o={id:'LKR-'+Date.now().toString().slice(-8),date:now.toLocaleDateString('en-IN'),time:now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),items,total,address:(()=>{const a=user.addresses.find(x=>x.id===user.selectedAddress)||user.addresses[0];return `${a.name}, ${a.line1}, ${a.city}, ${a.state} - ${a.pin}`})(),status:'Order Placed'};
+ user.orders.unshift(o);user.cart={};save();closeModal();toast('Order placed successfully');go('orders');
 }
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+function profileAction(a){
+ if(a==='logout'){logout();return}
+ go(a)
+}
+function saveProfile(e){e.preventDefault();user.name=document.getElementById('editName').value.trim()||'LKR Customer';user.mobile=document.getElementById('editMobile').value.trim();save();toast('Profile updated');go('profile')}
+function loginSubmit(e){e.preventDefault();user.name=document.getElementById('loginName').value.trim()||'LKR Customer';user.mobile=document.getElementById('loginMobile').value.trim();save();go('home',{},true);toast('Welcome to LKR Bazaar')}
+function logout(){localStorage.removeItem(KEY);user={...DEFAULT_USER};history.replaceState({route:{screen:'login',data:{}},searchTerm:'',shopFilter:'All',shopProductFilter:'All'},'');route={screen:'login',data:{}};render();toast('Logged out')}
+function addressForm(id){
+ const a=id?user.addresses.find(x=>x.id===id):null;
+ document.getElementById('modalContent').innerHTML=`<div class="sheethead"><h2 style="margin:0">${a?'Edit Address':'Add Address'}</h2><button class="close" onclick="closeModal()">✕</button></div><form class="form" style="border:0;padding:12px 0 0" onsubmit="saveAddress(event,'${id||''}')">
+ <div class="field"><label>Name</label><input id="aName" required value="${esc(a?.name||user.name)}"></div>
+ <div class="field"><label>Address</label><textarea id="aLine" required>${esc(a?.line1||'')}</textarea></div>
+ <div class="field"><label>City</label><input id="aCity" required value="${esc(a?.city||'')}"></div>
+ <div class="field"><label>State</label><input id="aState" required value="${esc(a?.state||'Bihar')}"></div>
+ <div class="field"><label>PIN Code</label><input id="aPin" required inputmode="numeric" value="${esc(a?.pin||'')}"></div>
+ <div class="field"><label>Mobile</label><input id="aMobile" required inputmode="tel" value="${esc(a?.mobile||user.mobile)}"></div>
+ <button class="btn primary full">Save Address</button></form>`;
+ document.getElementById('modal').classList.add('show');
+}
+function saveAddress(e,id){e.preventDefault();const obj={id:id||'a'+Date.now(),name:document.getElementById('aName').value.trim(),line1:document.getElementById('aLine').value.trim(),city:document.getElementById('aCity').value.trim(),state:document.getElementById('aState').value.trim(),pin:document.getElementById('aPin').value.trim(),mobile:document.getElementById('aMobile').value.trim()};const idx=user.addresses.findIndex(x=>x.id===obj.id);if(idx>=0)user.addresses[idx]=obj;else user.addresses.push(obj);if(!user.selectedAddress)user.selectedAddress=obj.id;save();closeModal();render();toast('Address saved')}
+function selectAddress(id){user.selectedAddress=id;save();render();toast('Delivery address selected')}
+function deleteAddress(id){if(!confirm('Delete this address?'))return;user.addresses=user.addresses.filter(x=>x.id!==id);if(user.selectedAddress===id)user.selectedAddress=user.addresses[0]?.id||null;save();render();toast('Address deleted')}
+
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+window.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+if(user.name==='LKR Customer'&&!user.mobile){route={screen:'login',data:{}};history.replaceState({route,searchTerm,shopFilter,shopProductFilter},'')}
+else {route={screen:'home',data:{}};history.replaceState({route,searchTerm,shopFilter,shopProductFilter},'')}
+render();
 </script>
 </body>
 </html>
