@@ -724,11 +724,23 @@
       return `<div class="icon-placeholder">${escapeHtml(initials(name))}</div>`;
     }
 
+    function handleIconError(img){
+      if (!img || img.dataset.fallbackShown === "1") return;
+      img.dataset.fallbackShown = "1";
+      img.onerror = null;
+      img.replaceWith(placeholderIcon(img.dataset.iconName || "LKR"));
+    }
+
     function iconHtml(url, name, cls="app-icon"){
       const safe = safeUrl(url);
       if (!safe) return placeholderIcon(name);
-      return `<img class="${cls}" src="${escapeHtml(safe)}" alt="${escapeHtml(name)}" loading="lazy"
-        onerror="this.outerHTML='${placeholderIcon(name).replaceAll("'","&#39;")}'">`;
+
+      // Keep the error handler as a simple function call. Do not inject
+      // placeholder HTML directly inside the onerror attribute because
+      // the placeholder contains quoted HTML attributes, which can break
+      // the surrounding HTML and leak text such as "LH" or ">" on screen.
+      return `<img class="${cls}" src="${escapeHtml(safe)}" alt="${escapeHtml(name)}"
+        data-icon-name="${escapeHtml(name)}" loading="lazy" onerror="handleIconError(this)">`;
     }
 
     function showToast(message){
