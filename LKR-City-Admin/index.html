@@ -404,7 +404,9 @@
     }
 
     function renderAddForm(){
-      if(!$("addFormMount").innerHTML) $("addFormMount").innerHTML=formTemplate(null);
+      // Always create a fresh form before binding. This prevents the same
+      // submit handler from being attached repeatedly to one form element.
+      $("addFormMount").innerHTML=formTemplate(null);
       bindForm($("addFormMount"),null);
     }
 
@@ -458,10 +460,32 @@
 
       form.addEventListener("submit",async e=>{
         e.preventDefault();
-        const error=mount.querySelector("#formError");error.textContent="Saving...";
+
+        // A form can be rendered/bound again during navigation. Keep a
+        // submission lock on the actual form element so even if two submit
+        // events reach this form at the same time, only the first one can
+        // write to Firestore.
+        if(form.dataset.saving === "1") return;
+
+        const error=mount.querySelector("#formError");
+        const submitBtn=form.querySelector('button[type="submit"]');
+        const originalSubmitText=submitBtn?.textContent || "Save App";
         const name=mount.querySelector("#fName").value.trim(),icon=safeUrl(mount.querySelector("#fIcon").value),website=safeUrl(mount.querySelector("#fWebsite").value);
         const category=mount.querySelector("#fCategory").value,description=mount.querySelector("#fDescription").value.trim(),displayOrder=Number(mount.querySelector("#fOrder").value);
-        if(!name||!icon||!website||!category||!Number.isFinite(displayOrder)||displayOrder<1){error.textContent="Please fill all required fields with valid values.";return}
+
+        if(!name||!icon||!website||!category||!Number.isFinite(displayOrder)||displayOrder<1){
+          error.textContent="Please fill all required fields with valid values.";
+          return;
+        }
+
+        form.dataset.saving="1";
+        if(submitBtn){
+          submitBtn.disabled=true;
+          submitBtn.textContent="Saving...";
+          submitBtn.setAttribute("aria-busy","true");
+        }
+        error.textContent="Saving...";
+
         const cleanMedia=rows.map((m,i)=>({type:m.type,url:String(m.url||"").trim(),order:Math.max(1,Number(m.order)||i+1)})).filter(m=>m.url);
         cleanMedia.sort((a,b)=>a.order-b.order);
         try{
@@ -479,7 +503,16 @@
           await loadAll();
           state.editingAppId=null;state.selectedApp=state.apps.find(a=>a.id===appId)||null;
           showScreen("appsScreen","apps",true);
-        }catch(err){console.error(err);error.textContent="Failed to save. Please try again."}
+        }catch(err){
+          console.error(err);
+          form.dataset.saving="0";
+          if(submitBtn){
+            submitBtn.disabled=false;
+            submitBtn.textContent=originalSubmitText;
+            submitBtn.removeAttribute("aria-busy");
+          }
+          error.textContent="Failed to save. Please try again.";
+        }
       });
     }
 
@@ -594,11 +627,14 @@
     });
 
     document.querySelectorAll(".nav").forEach(n=>n.onclick=()=>{
-      if(n.dataset.nav==="add"){state.editingAppId=null;$("addFormMount").innerHTML=formTemplate(null);bindForm($("addFormMount"),null)}
+      if(n.dataset.nav==="add") state.editingAppId=null;
       showScreen(n.dataset.screen,n.dataset.nav,true);
     });
 
-    $("addFromApps").onclick=()=>{state.editingAppId=null;$("addFormMount").innerHTML=formTemplate(null);bindForm($("addFormMount"),null);showScreen("addScreen","add",true)};
+    $("addFromApps").onclick=()=>{
+      state.editingAppId=null;
+      showScreen("addScreen","add",true);
+    };
     $("dashboardRefresh").onclick=loadAll;$("topRefresh").onclick=loadAll;
     $("dashboardUserSearch").oninput=renderDashboardUsers;$("userSearch").oninput=renderUsers;$("appSearch").oninput=renderApps;
 
